@@ -1,0 +1,14 @@
+# Ignoring config repo
+config-repo/
+
+# Ignoring target folders (builds)
+**/target/
+
+# Ignoring IDE files
+.idea/
+.vscode/
+*.iml
+
+# Ignoring OS-specific files
+.DS_Store
+Thumbs.db
