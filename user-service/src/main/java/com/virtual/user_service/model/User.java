@@ -1,5 +1,6 @@
 package com.virtual.user_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,24 +24,13 @@ public class User {
     private Role role;
 
     private boolean verified;
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     private boolean active = true;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     // For doctors
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "user_id")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = true)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private DoctorVerification doctorVerification;
-
-
 }

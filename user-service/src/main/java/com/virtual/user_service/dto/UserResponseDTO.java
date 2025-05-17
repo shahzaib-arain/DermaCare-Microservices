@@ -15,5 +15,9 @@ public class UserResponseDTO {
     private Role role;
     private boolean verified;
     private LocalDateTime createdAt;
+    // Doctor-specific fields (null for non-doctors)
+    private String degreeNumber;
+    private String specialization;
+    private Boolean doctorVerified;
 
 }

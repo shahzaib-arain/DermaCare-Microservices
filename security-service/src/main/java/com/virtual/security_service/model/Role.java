@@ -1,5 +1,4 @@
-package com.virtual.user_service.model;
-
+package com.virtual.security_service.model;
 
 public enum Role {
     ADMIN("ROLE_ADMIN"),

@@ -9,6 +9,7 @@ import com.virtual.user_service.repository.UserRepository;
 import com.virtual.user_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final UserService userService;
     private  final UserRepository userRepository;
+    @Autowired
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
@@ -44,9 +46,17 @@ public class AuthController {
             @RequestParam String username,
             @RequestParam String password) {
 
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        System.out.println("Validating user: " + username);  // Add this
+        System.out.println("Raw password received: " + password);  // Add this
 
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> {
+                    System.out.println("User not found: " + username);  // Add this
+                    return new UserNotFoundException("User not found");
+                });
+
+        System.out.println("Stored password hash: " + user.getPassword());  // Add this
+        System.out.println("Password matches: " + passwordEncoder.matches(password, user.getPassword()));  // Add this
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BadCredentialsException("Invalid credentials");

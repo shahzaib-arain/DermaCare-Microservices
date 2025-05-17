@@ -23,9 +23,10 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login/**", "/auth/register/**", "/api/public").permitAll()
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN") // changed to hasAuthority
+                        .requestMatchers("/doctor/**").hasAuthority("ROLE_DOCTOR") // changed to hasAuthority
                         .anyRequest().authenticated()
                 )
-                // Add the JWT filter before the UsernamePasswordAuthenticationFilter
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenUtil),
                         UsernamePasswordAuthenticationFilter.class);
 
