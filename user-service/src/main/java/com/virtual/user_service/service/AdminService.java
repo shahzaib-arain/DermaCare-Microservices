@@ -1,4 +1,5 @@
 package com.virtual.user_service.service;
+
 import com.virtual.user_service.dto.DoctorVerificationDTO;
 import com.virtual.user_service.exception.UserNotFoundException;
 import com.virtual.user_service.model.DoctorVerification;
@@ -19,6 +20,7 @@ public class AdminService {
     private final DoctorVerificationRepository doctorVerificationRepository;
     private final UserRepository userRepository;
 
+    @Transactional(readOnly = true)
     public List<DoctorVerificationDTO> getPendingDoctorVerifications() {
         return doctorVerificationRepository.findByVerifiedFalse()
                 .stream()
@@ -26,6 +28,7 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<DoctorVerificationDTO> getVerifiedDoctors() {
         return doctorVerificationRepository.findByVerifiedTrue()
                 .stream()
