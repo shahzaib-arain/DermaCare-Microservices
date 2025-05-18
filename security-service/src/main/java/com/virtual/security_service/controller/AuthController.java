@@ -50,8 +50,13 @@ public class AuthController {
             System.out.println("Authorities: " + authorities); // Debug log
 
             // 3. Create UserDetails
-            CustomUserDetails userDetails = new CustomUserDetails(user.getEmail(), authorities);
-
+            // Pass doctor verification status
+            boolean isDoctorVerified = user.getRole() == Role.DOCTOR &&  Boolean.TRUE.equals(user.getDoctorVerified());
+            CustomUserDetails userDetails = new CustomUserDetails(
+                    user.getEmail(),
+                    authorities,
+                    isDoctorVerified
+            );
             // 4. Generate token
             String token = jwtTokenUtil.generateToken(userDetails);
             System.out.println("Generated token: " + token); // Debug log

@@ -1,5 +1,6 @@
 package com.virtual.security_service.config;
-
+import com.virtual.security_service.model.CustomUserDetails;
+import com.virtual.security_service.service.UserServiceClient;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -18,7 +18,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenUtil jwtTokenUtil;
 
-    public JwtAuthenticationFilter(JwtTokenUtil jwtTokenUtil) {
+    public JwtAuthenticationFilter(JwtTokenUtil jwtTokenUtil, UserServiceClient userServiceClient) {
         this.jwtTokenUtil = jwtTokenUtil;
     }
 
@@ -47,7 +47,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtTokenUtil.validateToken(jwtToken)) {
                 List<GrantedAuthority> authorities = jwtTokenUtil.getAuthoritiesFromToken(jwtToken);
-
+                boolean isDoctorVerified = jwtTokenUtil.isDoctorVerified(jwtToken);
+                CustomUserDetails userDetails = new CustomUserDetails(
+                        username,
+                        authorities,
+                        isDoctorVerified
+                );
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                         new UsernamePasswordAuthenticationToken(username, null, authorities);
                 usernamePasswordAuthenticationToken

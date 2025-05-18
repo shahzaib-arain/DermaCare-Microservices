@@ -4,9 +4,7 @@ import com.virtual.security_service.config.FeignClientConfig;
 import com.virtual.security_service.dto.RegisterDTO;
 import com.virtual.security_service.dto.UserResponseDTO;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "user-service", configuration = FeignClientConfig.class)
 public interface UserServiceClient {

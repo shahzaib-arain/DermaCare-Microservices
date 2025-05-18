@@ -10,20 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/patient")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/me")
-    public ResponseEntity<UserResponseDTO> getCurrentUser() {
+    @GetMapping("/profile")
+    public ResponseEntity<UserResponseDTO> getPatientProfile() {
         return ResponseEntity.ok(userService.getCurrentUser());
     }
 
-    @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
-
-    // Other endpoints for user management
 }

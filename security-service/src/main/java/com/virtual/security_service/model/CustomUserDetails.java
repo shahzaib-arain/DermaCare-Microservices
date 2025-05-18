@@ -1,7 +1,6 @@
 package com.virtual.security_service.model;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -11,13 +10,17 @@ import java.util.Objects;
 public class CustomUserDetails implements UserDetails {
     private final String username;
     private final Collection<? extends GrantedAuthority> authorities;
+    private final boolean doctorVerified;
 
     public CustomUserDetails(String username,
-                             Collection<? extends GrantedAuthority> authorities) {
+                             Collection<? extends GrantedAuthority> authorities, boolean doctorVerified) {
         this.username = Objects.requireNonNull(username, "Username cannot be null");
         this.authorities = authorities != null ? authorities : Collections.emptyList();
+        this.doctorVerified = doctorVerified;
     }
-
+    public boolean isDoctorVerified() {
+        return doctorVerified;
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;

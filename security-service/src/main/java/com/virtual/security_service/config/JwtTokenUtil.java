@@ -1,6 +1,7 @@
 package com.virtual.security_service.config;
 
 import ch.qos.logback.classic.Logger;
+import com.virtual.security_service.model.CustomUserDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,10 @@ public class JwtTokenUtil {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
 
+        if (userDetails instanceof CustomUserDetails) {
+            CustomUserDetails customDetails = (CustomUserDetails) userDetails;
+            claims.put("doctorVerified", customDetails.isDoctorVerified());
+        }
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
@@ -79,5 +84,10 @@ public class JwtTokenUtil {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public boolean isDoctorVerified(String token) {
+        Claims claims = getClaimsFromToken(token);
+        return claims.get("doctorVerified", Boolean.class);
     }
 }
