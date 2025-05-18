@@ -51,7 +51,12 @@ public class AuthController {
 
             // 3. Create UserDetails
             // Pass doctor verification status
-            boolean isDoctorVerified = user.getRole() == Role.DOCTOR &&  Boolean.TRUE.equals(user.getDoctorVerified());
+            boolean isDoctorVerified = false;
+            if (user.getRole() == Role.DOCTOR) {
+                isDoctorVerified = user.isDoctorVerified();
+                System.out.println("Doctor verification status from DB: " + isDoctorVerified); // Debug
+            }
+
             CustomUserDetails userDetails = new CustomUserDetails(
                     user.getEmail(),
                     authorities,

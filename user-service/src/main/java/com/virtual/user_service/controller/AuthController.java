@@ -48,23 +48,29 @@ public class AuthController {
             @RequestParam String username,
             @RequestParam String password) {
 
-        System.out.println("Validating user: " + username);  // Add this
-        System.out.println("Raw password received: " + password);  // Add this
-
         User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> {
-                    System.out.println("User not found: " + username);  // Add this
-                    return new UserNotFoundException("User not found");
-                });
-
-        System.out.println("Stored password hash: " + user.getPassword());  // Add this
-        System.out.println("Password matches: " + passwordEncoder.matches(password, user.getPassword()));  // Add this
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BadCredentialsException("Invalid credentials");
         }
 
-        return ResponseEntity.ok(modelMapper.map(user, UserResponseDTO.class));
+        // Create response DTO manually to ensure all fields are properly set
+        UserResponseDTO responseDTO = new UserResponseDTO();
+        responseDTO.setId(user.getId());
+        responseDTO.setFullName(user.getFullName());
+        responseDTO.setEmail(user.getEmail());
+        responseDTO.setPhone(user.getPhone());
+        responseDTO.setRole(user.getRole());
+        responseDTO.setVerified(user.isVerified());
+
+        if (user.getRole() == Role.DOCTOR && user.getDoctorVerification() != null) {
+            responseDTO.setDegreeNumber(user.getDoctorVerification().getDegreeNumber());
+            responseDTO.setSpecialization(user.getDoctorVerification().getSpecialization());
+            responseDTO.setDoctorVerified(user.getDoctorVerification().isVerified());
+        }
+
+        return ResponseEntity.ok(responseDTO);
     }
     @GetMapping("/api/debug/principal")
     public ResponseEntity<?> debugPrincipal() {

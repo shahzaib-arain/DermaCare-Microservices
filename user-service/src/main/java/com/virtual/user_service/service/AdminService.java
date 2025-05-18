@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class AdminService {
     private final DoctorVerificationRepository doctorVerificationRepository;
     private final UserRepository userRepository;
+    public UserService userService;
 
     @Transactional(readOnly = true)
     public List<DoctorVerificationDTO> getPendingDoctorVerifications() {
@@ -53,6 +54,8 @@ public class AdminService {
             verification.setDegreeFilePath(degreeFilePath);
         }
         doctorVerificationRepository.save(verification);
+        userRepository.flush();
+        doctorVerificationRepository.flush();
     }
 
     private DoctorVerificationDTO convertToDto(DoctorVerification verification) {

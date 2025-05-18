@@ -96,9 +96,13 @@ public class UserService {
             DoctorVerification verification = user.getDoctorVerification();
             dto.setDegreeNumber(verification.getDegreeNumber());
             dto.setSpecialization(verification.getSpecialization());
-            dto.setDoctorVerified(verification.isVerified());
+            dto.setDoctorVerified(verification.isVerified()); // Always set boolean value
+        } else {
+            dto.setDoctorVerified(false); // Default false for non-doctors
         }
 
         return dto;
     }
+
+
 }

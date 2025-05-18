@@ -10,15 +10,15 @@ import java.util.Objects;
 public class CustomUserDetails implements UserDetails {
     private final String username;
     private final Collection<? extends GrantedAuthority> authorities;
-    private final boolean doctorVerified;
+    private final Boolean doctorVerified;
 
     public CustomUserDetails(String username,
-                             Collection<? extends GrantedAuthority> authorities, boolean doctorVerified) {
+                             Collection<? extends GrantedAuthority> authorities, Boolean doctorVerified) {
         this.username = Objects.requireNonNull(username, "Username cannot be null");
         this.authorities = authorities != null ? authorities : Collections.emptyList();
         this.doctorVerified = doctorVerified;
     }
-    public boolean isDoctorVerified() {
+    public Boolean isDoctorVerified() {
         return doctorVerified;
     }
     @Override

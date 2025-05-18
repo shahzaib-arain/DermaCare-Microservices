@@ -34,7 +34,11 @@ public class JwtTokenUtil {
 
         if (userDetails instanceof CustomUserDetails) {
             CustomUserDetails customDetails = (CustomUserDetails) userDetails;
-            claims.put("doctorVerified", customDetails.isDoctorVerified());
+            // Check if user has ROLE_DOCTOR before adding doctorVerified
+            if (customDetails.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_DOCTOR"))) {
+                claims.put("doctorVerified", customDetails.isDoctorVerified());
+            }
         }
         return Jwts.builder()
                 .setClaims(claims)

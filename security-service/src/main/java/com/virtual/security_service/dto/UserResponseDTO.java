@@ -18,7 +18,7 @@ public class UserResponseDTO {
     // Doctor-specific fields (null for non-doctors)
     private String degreeNumber;
     private String specialization;
-    private Boolean doctorVerified;
+    private boolean doctorVerified;
 
 
 }

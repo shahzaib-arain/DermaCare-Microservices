@@ -25,7 +25,7 @@ public class DoctorController {
         UserResponseDTO doctor = userService.getCurrentUser();
 
         // Additional check for doctor verification
-        if (doctor.getRole() != Role.DOCTOR || !Boolean.TRUE.equals(doctor.getDoctorVerified())) {
+        if (doctor.getRole() != Role.DOCTOR || !Boolean.TRUE.equals(doctor.isDoctorVerified())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
