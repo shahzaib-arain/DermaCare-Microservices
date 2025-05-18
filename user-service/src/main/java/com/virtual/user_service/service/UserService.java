@@ -70,14 +70,12 @@ public class UserService {
 
         return responseDTO;
     }
-
     public UserResponseDTO getCurrentUser() {
         String email = securityUtils.getCurrentUserEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         return convertToDto(user);
     }
-
     public List<UserResponseDTO> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::convertToDto)

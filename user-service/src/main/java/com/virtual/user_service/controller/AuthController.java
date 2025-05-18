@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,5 +65,10 @@ public class AuthController {
         }
 
         return ResponseEntity.ok(modelMapper.map(user, UserResponseDTO.class));
+    }
+    @GetMapping("/api/debug/principal")
+    public ResponseEntity<?> debugPrincipal() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(authentication.getPrincipal());
     }
 }
