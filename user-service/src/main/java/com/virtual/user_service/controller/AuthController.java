@@ -77,4 +77,6 @@ public class AuthController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return ResponseEntity.ok(authentication.getPrincipal());
     }
+
+
 }

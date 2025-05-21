@@ -35,7 +35,8 @@ public class EmailServiceImpl implements EmailService {
             Context context = new Context(Locale.getDefault());
             context.setVariable("name", name);
 
-            String htmlContent = templateEngine.process("email/welcome", context);
+            // Correct template path - should match your actual template file location
+            String htmlContent = templateEngine.process("email/welcome-email.html", context);
 
             helper.setText(htmlContent, true);
             helper.setTo(toEmail);

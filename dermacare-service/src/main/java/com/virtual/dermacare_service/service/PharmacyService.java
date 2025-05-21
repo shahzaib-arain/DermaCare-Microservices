@@ -1,6 +1,5 @@
 package com.virtual.dermacare_service.service;
 
-
 import com.virtual.dermacare_service.dto.MedicineDTO;
 import com.virtual.dermacare_service.dto.PrescriptionDTO;
 import com.virtual.dermacare_service.exception.ResourceNotFoundException;
@@ -12,14 +11,17 @@ public interface PharmacyService {
     PrescriptionDTO createPrescription(PrescriptionDTO prescriptionDTO)
             throws UnauthorizedAccessException, ResourceNotFoundException;
 
-    PrescriptionDTO getPrescription(Long id)
+    PrescriptionDTO getPrescription(String id)
             throws ResourceNotFoundException, UnauthorizedAccessException;
 
-    List<PrescriptionDTO> getPatientPrescriptions(Long patientId)
+    List<PrescriptionDTO> getPatientPrescriptions(String patientId)
             throws UnauthorizedAccessException;
 
-    String orderMedicines(Long prescriptionId)
+    String orderMedicines(String prescriptionId)
             throws ResourceNotFoundException, UnauthorizedAccessException;
 
     List<MedicineDTO> getAllMedicines();
+
+    MedicineDTO addMedicine(MedicineDTO medicineDTO);
+
 }

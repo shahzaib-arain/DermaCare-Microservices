@@ -1,9 +1,9 @@
 package com.virtual.dermacare_service.impl;
+
 import com.virtual.dermacare_service.dto.MedicineDTO;
 import com.virtual.dermacare_service.dto.PrescriptionDTO;
 import com.virtual.dermacare_service.exception.ResourceNotFoundException;
 import com.virtual.dermacare_service.exception.UnauthorizedAccessException;
-import com.virtual.dermacare_service.feignclient.UserServiceClient;
 import com.virtual.dermacare_service.model.Medicine;
 import com.virtual.dermacare_service.model.Prescription;
 import com.virtual.dermacare_service.model.PrescriptionItem;
@@ -16,7 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.virtual.dermacare_service.dto.UserResponseDTO;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,25 +26,22 @@ public class PharmacyServiceImpl implements PharmacyService {
 
     private final PrescriptionRepository prescriptionRepository;
     private final MedicineRepository medicineRepository;
-    private final UserServiceClient userServiceClient;
     private final ModelMapper modelMapper;
 
     @Override
     @Transactional
     public PrescriptionDTO createPrescription(PrescriptionDTO prescriptionDTO) {
-        // Verify current user is a doctor
-        String username = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication())
-                .getToken().getClaimAsString("sub");
-        UserResponseDTO currentUser = userServiceClient.validateUser(username, "");
+        JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        List<String> roles = authentication.getToken().getClaimAsStringList("roles");
+        String userId = authentication.getToken().getClaimAsString("sub");
 
-        if (!currentUser.getRole().equals("DOCTOR")) {
+        if (roles == null || !roles.contains("ROLE_DOCTOR")) {
             throw new UnauthorizedAccessException("Only doctors can create prescriptions");
         }
 
         Prescription prescription = modelMapper.map(prescriptionDTO, Prescription.class);
-        prescription.setDoctorId(Long.valueOf(currentUser.getId()));
+        prescription.setDoctorId(userId);
 
-        // Set prescription items with proper medicine references
         List<PrescriptionItem> items = prescriptionDTO.getItems().stream()
                 .map(itemDTO -> {
                     Medicine medicine = medicineRepository.findById(itemDTO.getMedicineId())
@@ -66,26 +62,27 @@ public class PharmacyServiceImpl implements PharmacyService {
     }
 
     @Override
-    public PrescriptionDTO getPrescription(Long id) {
+    public PrescriptionDTO getPrescription(String id) {
         Prescription prescription = prescriptionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Prescription not found"));
 
-        // Check access
         checkPrescriptionAccess(prescription);
 
         return modelMapper.map(prescription, PrescriptionDTO.class);
     }
 
     @Override
-    public List<PrescriptionDTO> getPatientPrescriptions(Long patientId) {
-        // Verify current user has access to these records
-        String username = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication())
-                .getToken().getClaimAsString("sub");
-        UserResponseDTO currentUser = userServiceClient.validateUser(username, "");
+    public List<PrescriptionDTO> getPatientPrescriptions(String patientId) {
+        JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getToken().getClaimAsString("sub");
+        List<String> roles = authentication.getToken().getClaimAsStringList("roles");
 
-        if (!currentUser.getId().equals(patientId) && !currentUser.getRole().equals("DOCTOR")
-                && !currentUser.getRole().equals("ADMIN")) {
-            throw new UnauthorizedAccessException("You don't have permission to access these records");
+        if (!userId.equals(patientId)) {
+            boolean hasAccess = roles.stream()
+                    .anyMatch(role -> role.equals("ROLE_DOCTOR") || role.equals("ROLE_ADMIN"));
+            if (!hasAccess) {
+                throw new UnauthorizedAccessException("You don't have permission to access these records");
+            }
         }
 
         return prescriptionRepository.findByPatientId(patientId).stream()
@@ -95,20 +92,14 @@ public class PharmacyServiceImpl implements PharmacyService {
 
     @Override
     @Transactional
-    public String orderMedicines(Long prescriptionId) {
-        // Verify current user is the patient who owns the prescription
-        String username = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication())
-                .getToken().getClaimAsString("sub");
-        UserResponseDTO currentUser = userServiceClient.validateUser(username, "");
+    public String orderMedicines(String prescriptionId) {
+        JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getToken().getClaimAsString("sub");
 
         Prescription prescription = prescriptionRepository.findById(prescriptionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Prescription not found"));
 
-        if (!currentUser.getId().equals(prescription.getPatientId())) {
-            throw new UnauthorizedAccessException("You can only order medicines from your own prescriptions");
-        }
 
-        // Check medicine availability and update inventory
         for (PrescriptionItem item : prescription.getItems()) {
             Medicine medicine = item.getMedicine();
             if (medicine.getStock() <= 0) {
@@ -121,7 +112,6 @@ public class PharmacyServiceImpl implements PharmacyService {
         prescription.setStatus("ORDERED");
         prescriptionRepository.save(prescription);
 
-        // In a real application, this would trigger a notification to the pharmacy
         return "Medicines ordered successfully for prescription ID: " + prescriptionId;
     }
 
@@ -133,14 +123,29 @@ public class PharmacyServiceImpl implements PharmacyService {
     }
 
     private void checkPrescriptionAccess(Prescription prescription) {
-        String username = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication())
-                .getToken().getClaimAsString("sub");
-        UserResponseDTO currentUser = userServiceClient.validateUser(username, "");
+        JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getToken().getClaimAsString("sub");
+        List<String> roles = authentication.getToken().getClaimAsStringList("roles");
 
-        if (!currentUser.getId().equals(prescription.getPatientId())
-                && !currentUser.getId().equals(prescription.getDoctorId())
-                && !currentUser.getRole().equals("ADMIN")) {
-            throw new UnauthorizedAccessException("You don't have permission to access this prescription");
+        if (!userId.equals(prescription.getPatientId()) && !userId.equals(prescription.getDoctorId())) {
+            if (roles == null || !roles.contains("ROLE_ADMIN")) {
+                throw new UnauthorizedAccessException("You don't have permission to access this prescription");
+            }
         }
     }
+
+    @Override
+    @Transactional
+    public MedicineDTO addMedicine(MedicineDTO medicineDTO) {
+        Medicine medicine = modelMapper.map(medicineDTO, Medicine.class);
+
+        // You can add validation if you want here, for example:
+        if (medicine.getStock() < 0) {
+            medicine.setStock(0);
+        }
+
+        Medicine savedMedicine = medicineRepository.save(medicine);
+        return modelMapper.map(savedMedicine, MedicineDTO.class);
+    }
+
 }

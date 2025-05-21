@@ -1,4 +1,5 @@
 package com.virtual.dermacare_service.repository;
+
 import com.virtual.dermacare_service.model.Appointment;
 import com.virtual.dermacare_service.model.AppointmentStatus;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -8,21 +9,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface AppointmentRepository extends MongoRepository<Appointment, Long> {
+public interface AppointmentRepository extends MongoRepository<Appointment, String> {
 
-    List<Appointment> findByPatientId(Long patientId);
+    List<Appointment> findByPatientId(String patientId);
 
-    List<Appointment> findByDoctorId(Long doctorId);
+    List<Appointment> findByDoctorId(String doctorId);
 
     List<Appointment> findByDoctorIdAndAppointmentTimeBetweenAndStatus(
-            Long doctorId,
+            String doctorId,
             LocalDateTime start,
             LocalDateTime end,
             AppointmentStatus status
     );
 
     boolean existsByDoctorIdAndAppointmentTimeBetweenAndStatusNot(
-            Long doctorId,
+            String doctorId,
             LocalDateTime start,
             LocalDateTime end,
             AppointmentStatus status

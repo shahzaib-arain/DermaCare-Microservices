@@ -1,4 +1,5 @@
 package com.virtual.user_service.service;
+import com.virtual.user_service.dto.DoctorVerificationDTO;
 import com.virtual.user_service.dto.RegisterDTO;
 import com.virtual.user_service.dto.UserResponseDTO;
 import com.virtual.user_service.model.DoctorVerification;
@@ -52,6 +53,8 @@ public class UserService {
             user = userRepository.save(user); // Save again to update the relationship
         }
 
+        emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
+
         // Create response DTO manually to avoid proxy issues
         UserResponseDTO responseDTO = new UserResponseDTO();
         responseDTO.setId(user.getId());
@@ -102,6 +105,23 @@ public class UserService {
         }
 
         return dto;
+    }
+
+    public List<DoctorVerificationDTO> getAllVerifiedDoctors() {
+        List<DoctorVerification> verifiedDoctors = doctorVerificationRepository.findByVerifiedTrue();
+
+        return verifiedDoctors.stream().map(verification -> {
+            DoctorVerificationDTO dto = new DoctorVerificationDTO();
+            dto.setDoctorId(verification.getUser().getId());
+            dto.setFullName(verification.getUser().getFullName());
+            dto.setEmail(verification.getUser().getEmail());
+            dto.setPhone(verification.getUser().getPhone());
+            dto.setDegreeNumber(verification.getDegreeNumber());
+            dto.setSpecialization(verification.getSpecialization());
+            dto.setVerified(verification.isVerified());
+            dto.setDegreeFilePath(verification.getDegreeFilePath());
+            return dto;
+        }).collect(Collectors.toList());
     }
 
 

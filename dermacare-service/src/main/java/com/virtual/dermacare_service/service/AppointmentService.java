@@ -1,4 +1,5 @@
 package com.virtual.dermacare_service.service;
+
 import com.virtual.dermacare_service.dto.AppointmentDTO;
 import com.virtual.dermacare_service.exception.AppointmentConflictException;
 import com.virtual.dermacare_service.exception.ResourceNotFoundException;
@@ -10,17 +11,17 @@ public interface AppointmentService {
     AppointmentDTO bookAppointment(AppointmentDTO appointmentDTO)
             throws UnauthorizedAccessException, AppointmentConflictException;
 
-    List<AppointmentDTO> getPatientAppointments(Long patientId)
+    List<AppointmentDTO> getPatientAppointments(String patientId)
             throws UnauthorizedAccessException;
 
-    List<AppointmentDTO> getDoctorAppointments(Long doctorId)
+    List<AppointmentDTO> getDoctorAppointments(String doctorId)
             throws UnauthorizedAccessException;
 
-    AppointmentDTO rescheduleAppointment(Long id, String newDateTime)
+    AppointmentDTO rescheduleAppointment(String id, String newDateTime)
             throws ResourceNotFoundException, UnauthorizedAccessException, AppointmentConflictException;
 
-    void cancelAppointment(Long id)
+    void cancelAppointment(String id)
             throws ResourceNotFoundException, UnauthorizedAccessException;
 
-    List<AppointmentDTO> getAvailableSlots(Long doctorId, String date);
+    List<AppointmentDTO> getAvailableSlots(String doctorId, String date);
 }

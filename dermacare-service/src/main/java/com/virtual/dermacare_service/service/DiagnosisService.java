@@ -1,4 +1,5 @@
 package com.virtual.dermacare_service.service;
+
 import com.virtual.dermacare_service.dto.DiagnosisDTO;
 import com.virtual.dermacare_service.exception.ResourceNotFoundException;
 import com.virtual.dermacare_service.exception.UnauthorizedAccessException;
@@ -11,12 +12,12 @@ public interface DiagnosisService {
     DiagnosisDTO uploadImage(MultipartFile file, String notes)
             throws IOException, UnauthorizedAccessException;
 
-    DiagnosisDTO getDiagnosis(Long id)
+    DiagnosisDTO getDiagnosis(String id)
             throws ResourceNotFoundException, UnauthorizedAccessException;
 
-    List<DiagnosisDTO> getDiagnosesByPatient(Long patientId)
+    List<DiagnosisDTO> getDiagnosesByPatient(String patientId)
             throws UnauthorizedAccessException;
 
-    DiagnosisDTO analyzeDiagnosis(Long id, String diagnosisText, String recommendations)
+    DiagnosisDTO analyzeDiagnosis(String id, String diagnosisText, String recommendations)
             throws ResourceNotFoundException, UnauthorizedAccessException;
 }

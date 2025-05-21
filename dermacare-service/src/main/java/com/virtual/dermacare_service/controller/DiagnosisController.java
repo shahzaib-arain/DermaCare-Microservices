@@ -1,6 +1,5 @@
 package com.virtual.dermacare_service.controller;
 
-
 import com.virtual.dermacare_service.dto.DiagnosisDTO;
 import com.virtual.dermacare_service.service.DiagnosisService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ public class DiagnosisController {
     private final DiagnosisService diagnosisService;
 
     @PostMapping("/upload")
-    @PreAuthorize("hasRole('PATIENT')")
+    @PreAuthorize("hasAuthority('ROLE_PATIENT')")
     public ResponseEntity<DiagnosisDTO> uploadImage(
             @RequestParam("file") MultipartFile file,
             @RequestParam String notes) throws IOException {
@@ -28,21 +27,21 @@ public class DiagnosisController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'ADMIN')")
-    public ResponseEntity<DiagnosisDTO> getDiagnosis(@PathVariable Long id) {
+    @PreAuthorize("hasAnyAuthority('ROLE_PATIENT', 'ROLE_DOCTOR', 'ROLE_ADMIN')")
+    public ResponseEntity<DiagnosisDTO> getDiagnosis(@PathVariable String id) {
         return ResponseEntity.ok(diagnosisService.getDiagnosis(id));
     }
 
     @GetMapping("/patient/{patientId}")
-    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'ADMIN')")
-    public ResponseEntity<List<DiagnosisDTO>> getDiagnosesByPatient(@PathVariable Long patientId) {
+    @PreAuthorize("hasAnyAuthority('ROLE_PATIENT', 'ROLE_DOCTOR', 'ROLE_ADMIN')")
+    public ResponseEntity<List<DiagnosisDTO>> getDiagnosesByPatient(@PathVariable String patientId) {
         return ResponseEntity.ok(diagnosisService.getDiagnosesByPatient(patientId));
     }
 
     @PostMapping("/analyze/{id}")
-    @PreAuthorize("hasRole('DOCTOR')")
+    @PreAuthorize("hasAuthority('ROLE_DOCTOR')")
     public ResponseEntity<DiagnosisDTO> analyzeDiagnosis(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestParam String diagnosis,
             @RequestParam String recommendations) {
         return ResponseEntity.ok(diagnosisService.analyzeDiagnosis(id, diagnosis, recommendations));

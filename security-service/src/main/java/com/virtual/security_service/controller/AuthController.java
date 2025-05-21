@@ -74,7 +74,6 @@ public class AuthController {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
     }
-
     @PostMapping("/register/patient")
     public ResponseEntity<String> register(@RequestBody RegisterDTO registrationDTO) {
         UserResponseDTO registeredUser = userServiceClient.registerUser(registrationDTO);

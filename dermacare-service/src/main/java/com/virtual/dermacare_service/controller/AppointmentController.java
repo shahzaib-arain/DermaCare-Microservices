@@ -1,4 +1,5 @@
 package com.virtual.dermacare_service.controller;
+
 import com.virtual.dermacare_service.dto.AppointmentDTO;
 import com.virtual.dermacare_service.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
@@ -16,35 +17,45 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @PostMapping
-    @PreAuthorize("hasRole('PATIENT')")
+    @PreAuthorize("hasAuthority('ROLE_PATIENT')")
     public ResponseEntity<AppointmentDTO> bookAppointment(@RequestBody AppointmentDTO appointmentDTO) {
         return ResponseEntity.ok(appointmentService.bookAppointment(appointmentDTO));
     }
 
     @GetMapping("/patient/{patientId}")
-    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'ADMIN')")
-    public ResponseEntity<List<AppointmentDTO>> getPatientAppointments(@PathVariable Long patientId) {
+    @PreAuthorize("hasAnyAuthority('ROLE_PATIENT', 'ROLE_DOCTOR', 'ROLE_ADMIN')")
+    public ResponseEntity<List<AppointmentDTO>> getPatientAppointments(@PathVariable String patientId) {
         return ResponseEntity.ok(appointmentService.getPatientAppointments(patientId));
     }
 
     @GetMapping("/doctor/{doctorId}")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
-    public ResponseEntity<List<AppointmentDTO>> getDoctorAppointments(@PathVariable Long doctorId) {
+    @PreAuthorize("hasAnyAuthority('ROLE_DOCTOR', 'ROLE_ADMIN')")
+    public ResponseEntity<List<AppointmentDTO>> getDoctorAppointments(@PathVariable String doctorId) {
         return ResponseEntity.ok(appointmentService.getDoctorAppointments(doctorId));
     }
 
     @PutMapping("/{id}/reschedule")
-    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_PATIENT', 'ROLE_DOCTOR', 'ROLE_ADMIN')")
     public ResponseEntity<AppointmentDTO> rescheduleAppointment(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestParam String newDateTime) {
         return ResponseEntity.ok(appointmentService.rescheduleAppointment(id, newDateTime));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'ADMIN')")
-    public ResponseEntity<Void> cancelAppointment(@PathVariable Long id) {
+    @PreAuthorize("hasAnyAuthority('ROLE_PATIENT', 'ROLE_DOCTOR', 'ROLE_ADMIN')")
+    public ResponseEntity<Void> cancelAppointment(@PathVariable String id) {
         appointmentService.cancelAppointment(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/available/{doctorId}")
+    public ResponseEntity<List<AppointmentDTO>> getAvailableSlots(
+            @PathVariable String doctorId,
+            @RequestParam String date) {
+
+        List<AppointmentDTO> slots = appointmentService.getAvailableSlots(doctorId, date);
+        return ResponseEntity.ok(slots);
+    }
+
 }

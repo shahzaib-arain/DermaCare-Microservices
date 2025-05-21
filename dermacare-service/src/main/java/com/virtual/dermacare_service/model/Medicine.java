@@ -1,4 +1,5 @@
 package com.virtual.dermacare_service.model;
+
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -7,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "medicines")
 public class Medicine {
     @Id
-    private Long id;
+    private String id;  // Changed from Long to String
     private String name;
     private String description;
     private String manufacturer;

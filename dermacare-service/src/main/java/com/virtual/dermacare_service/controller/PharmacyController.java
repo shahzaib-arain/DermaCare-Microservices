@@ -1,4 +1,5 @@
 package com.virtual.dermacare_service.controller;
+
 import com.virtual.dermacare_service.dto.MedicineDTO;
 import com.virtual.dermacare_service.dto.PrescriptionDTO;
 import com.virtual.dermacare_service.service.PharmacyService;
@@ -17,26 +18,26 @@ public class PharmacyController {
     private final PharmacyService pharmacyService;
 
     @PostMapping("/prescription")
-    @PreAuthorize("hasRole('DOCTOR')")
+    @PreAuthorize("hasAuthority('ROLE_DOCTOR')")
     public ResponseEntity<PrescriptionDTO> createPrescription(@RequestBody PrescriptionDTO prescriptionDTO) {
         return ResponseEntity.ok(pharmacyService.createPrescription(prescriptionDTO));
     }
 
     @GetMapping("/prescription/{id}")
-    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'ADMIN')")
-    public ResponseEntity<PrescriptionDTO> getPrescription(@PathVariable Long id) {
+    @PreAuthorize("hasAnyAuthority('ROLE_PATIENT', 'ROLE_DOCTOR', 'ROLE_ADMIN')")
+    public ResponseEntity<PrescriptionDTO> getPrescription(@PathVariable String id) {
         return ResponseEntity.ok(pharmacyService.getPrescription(id));
     }
 
     @GetMapping("/prescription/patient/{patientId}")
-    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'ADMIN')")
-    public ResponseEntity<List<PrescriptionDTO>> getPatientPrescriptions(@PathVariable Long patientId) {
+    @PreAuthorize("hasAnyAuthority('ROLE_PATIENT', 'ROLE_DOCTOR', 'ROLE_ADMIN')")
+    public ResponseEntity<List<PrescriptionDTO>> getPatientPrescriptions(@PathVariable String patientId) {
         return ResponseEntity.ok(pharmacyService.getPatientPrescriptions(patientId));
     }
 
     @PostMapping("/order/{prescriptionId}")
-    @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<String> orderMedicines(@PathVariable Long prescriptionId) {
+    @PreAuthorize("hasAuthority('ROLE_PATIENT')")
+    public ResponseEntity<String> orderMedicines(@PathVariable String prescriptionId) {
         return ResponseEntity.ok(pharmacyService.orderMedicines(prescriptionId));
     }
 
@@ -44,4 +45,10 @@ public class PharmacyController {
     public ResponseEntity<List<MedicineDTO>> getAllMedicines() {
         return ResponseEntity.ok(pharmacyService.getAllMedicines());
     }
+    @PostMapping("/medicines")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<MedicineDTO> addMedicine(@RequestBody MedicineDTO medicineDTO) {
+        return ResponseEntity.ok(pharmacyService.addMedicine(medicineDTO));
+    }
+
 }

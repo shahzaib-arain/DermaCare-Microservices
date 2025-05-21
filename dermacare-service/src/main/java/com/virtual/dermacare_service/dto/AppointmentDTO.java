@@ -7,15 +7,15 @@ import java.time.LocalDateTime;
 
 @Data
 public class AppointmentDTO {
-    private Long id;
-    private Long patientId;
-    private Long doctorId;
+    private String id;  // Changed from Long to String
+    private String patientId;
+    private String doctorId;
     private LocalDateTime appointmentTime;
     private Integer durationMinutes;
     private String reason;
     private AppointmentStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String patientName; // Added for client convenience
-    private String doctorName; // Added for client convenience
+    private String patientName;
+    private String doctorName;
 }

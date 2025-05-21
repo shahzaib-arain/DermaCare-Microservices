@@ -9,7 +9,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import org.thymeleaf.templateresolver.ITemplateResolver;
 
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -41,4 +43,5 @@ public class UserServiceApplication {
 		templateResolver.setCharacterEncoding("UTF-8");
 		return templateResolver;
 	}
+
 }

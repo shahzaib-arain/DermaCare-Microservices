@@ -10,18 +10,17 @@ import java.time.LocalDateTime;
 @Document(collection = "appointments")
 public class Appointment {
     @Id
-    private Long id;
-    private Long patientId;
-    private Long doctorId;
+    private String id;  // Changed from Long to String
+    private String patientId;
+    private String doctorId;
     private LocalDateTime appointmentTime;
-    private Integer durationMinutes; // Default 30 minutes
+    private Integer durationMinutes = 30;
     private String reason;
     private AppointmentStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public Appointment() {
-        this.durationMinutes = 30; // Default duration
         this.status = AppointmentStatus.BOOKED;
         this.createdAt = LocalDateTime.now();
     }

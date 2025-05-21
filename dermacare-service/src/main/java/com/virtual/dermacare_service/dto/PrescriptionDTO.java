@@ -7,12 +7,12 @@ import java.util.List;
 
 @Data
 public class PrescriptionDTO {
-    private Long id;
-    private Long patientId;
-    private Long doctorId;
+    private String id;  // Changed from Long to String
+    private String patientId;
+    private String doctorId;
     private LocalDateTime dateCreated;
-    private String status; // PENDING, ACTIVE, COMPLETED, CANCELLED
+    private String status;
     private List<PrescriptionItemDTO> items;
-    private String patientName; // Added for client convenience
-    private String doctorName; // Added for client convenience
+    private String patientName;
+    private String doctorName;
 }

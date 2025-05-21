@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 @Document(collection = "diagnoses")
 public class Diagnosis {
     @Id
-    private Long id;
-    private Long patientId;
-    private Long doctorId;
+    private String id;  // Changed from Long to String
+    private String patientId;
+    private String doctorId;
     private byte[] image;
     private String notes;
     private String diagnosis;
