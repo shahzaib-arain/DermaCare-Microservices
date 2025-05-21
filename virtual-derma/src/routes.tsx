@@ -24,8 +24,12 @@ export const AppRoutes = () => {
       <Route path="/services" element={<Services />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/register/patient" element={<RegisterPatient />} />
-      <Route path="/register/doctor" element={<RegisterDoctor />} />
+      <Route path="/register/patient" element={<RegisterPatient onSuccess={function (): void {
+              throw new Error('Function not implemented.');
+          } } />} />
+      <Route path="/register/doctor" element={<RegisterDoctor onSuccess={function (): void {
+              throw new Error('Function not implemented.');
+          } } />} />
 
       {/* Patient Routes */}
       <Route

@@ -1,4 +1,4 @@
-import { Drawer, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar } from '@mui/material';
 import {
   Home as HomeIcon,
   CalendarToday as AppointmentsIcon,
@@ -18,7 +18,8 @@ interface NavItem {
 }
 
 export const Navbar = () => {
-  const { userRole } = useAuth();
+  const { user } = useAuth();
+  const userRole = user?.role ?? '';
 
   const navItems: NavItem[] = [
     { text: 'Home', icon: <HomeIcon />, path: '/', roles: ['ADMIN', 'DOCTOR', 'PATIENT'] },
@@ -45,14 +46,11 @@ export const Navbar = () => {
       <Toolbar /> {/* For proper spacing below app bar */}
       <List>
         {filteredItems.map((item) => (
-          <ListItem
-            button
-            key={item.text}
-            component={Link}
-            to={item.path}
-          >
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
+          <ListItem disablePadding key={item.text}>
+            <ListItemButton component={Link} to={item.path}>
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItemButton>
           </ListItem>
         ))}
       </List>

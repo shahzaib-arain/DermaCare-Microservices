@@ -1,58 +1,55 @@
-import { useForm } from 'react-hook-form';
-import { TextField, Button, Box, Typography } from '@mui/material';
-import { login } from '../../api/authService';
-import { useAuth } from '../../contexts/AuthContext';
+import { useState } from 'react';
+import { TextField, Button, Box } from '@mui/material';
 
 interface LoginFormProps {
   onSuccess: () => void;
 }
 
-interface LoginFormData {
-  email: string;
-  password: string;
-}
-
 export const LoginForm = ({ onSuccess }: LoginFormProps) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
-  const { login: authLogin } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = async (data: LoginFormData) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
     try {
-      const response = await login(data.email, data.password);
-      authLogin(response.token);
-      onSuccess();
+      // Replace with your login API call
+      // await loginUser({ email, password });
+
+      // Simulate success:
+      setTimeout(() => {
+        setIsSubmitting(false);
+        onSuccess();
+      }, 1000);
     } catch (error) {
+      setIsSubmitting(false);
       console.error('Login failed:', error);
     }
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 2 }}>
+    <Box component="form" onSubmit={handleSubmit} noValidate>
       <TextField
-        fullWidth
         label="Email"
         type="email"
-        {...register('email', { required: 'Email is required' })}
-        error={!!errors.email}
-        helperText={errors.email?.message}
-        sx={{ mb: 2 }}
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        fullWidth
+        margin="normal"
+        required
       />
       <TextField
-        fullWidth
         label="Password"
         type="password"
-        {...register('password', { required: 'Password is required' })}
-        error={!!errors.password}
-        helperText={errors.password?.message}
-        sx={{ mb: 2 }}
-      />
-      <Button
-        type="submit"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
         fullWidth
-        variant="contained"
-        sx={{ mt: 2, mb: 2 }}
-      >
-        Sign In
+        margin="normal"
+        required
+      />
+      <Button type="submit" variant="contained" fullWidth disabled={isSubmitting}>
+        {isSubmitting ? 'Logging in...' : 'Login'}
       </Button>
     </Box>
   );
