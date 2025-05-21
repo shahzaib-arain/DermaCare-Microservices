@@ -1,4 +1,4 @@
-import { Box, Typography, Grid } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { StatsCard } from '../../../components/dashboard/StatsCard';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useApi } from '../../../hooks/useApi';
@@ -34,32 +34,42 @@ export const PatientDashboard = () => {
         Welcome back! Here's your overview
       </Typography>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={4}>
+      {/* Replace Grid container with flex Box */}
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: 3, 
+          mb: 4,
+          justifyContent: 'space-between'
+        }}
+      >
+        {/* Each StatsCard wrapped in Box with responsive width */}
+        <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Upcoming Appointments"
             value={upcomingAppointments}
             icon={EventNoteIcon}
             color="primary"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        </Box>
+        <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Pending Diagnoses"
             value="2"
             icon={HealingIcon}
             color="secondary"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        </Box>
+        <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Active Prescriptions"
             value="1"
             icon={LocalPharmacyIcon}
             color="success"
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       <Box sx={{ 
         backgroundColor: 'background.paper',

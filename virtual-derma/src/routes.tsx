@@ -1,19 +1,19 @@
 import { Routes, Route } from 'react-router-dom';
-import { Home } from '../pages/public/Home';
-import { About } from '../pages/public/About';
-import { Services } from '../pages/public/Services';
-import { Contact } from '../pages/public/Contact';
-import { Login } from '../pages/auth/Login';
-import { RegisterPatient } from '../pages/auth/RegisterPatient';
-import { RegisterDoctor } from '../pages/auth/RegisterDoctor';
-import { PatientDashboard } from '../pages/dashboard/patient/PatientDashboard';
-import { DoctorDashboard } from '../pages/dashboard/doctor/DoctorDashboard';
-import { AdminDashboard } from '../pages/dashboard/admin/AdminDashboard';
-import { ProtectedRoute } from '../components/common/ProtectedRoute';
-import { BookAppointment } from '../pages/dashboard/patient/BookAppointment';
-import { UploadDiagnosis } from '../pages/dashboard/patient/UploadDiagnosis';
-import { DoctorVerification } from '../pages/dashboard/admin/DoctorVerification';
-import { PageNotFound } from '../pages/404';
+import { Home } from './pages/public/Home';
+import { About } from './pages/public/About';
+import { Services } from './pages/public/Services';
+import { Contact } from './pages/public/Contact';
+import { Login } from './pages/auth/Login';
+import { RegisterPatient } from './pages/auth/RegisterPatient';
+import { RegisterDoctor } from './pages/auth/RegisterDoctor';
+import { PatientDashboard } from './pages/dashboard/patient/PatientDashboard';
+import { DoctorDashboard } from './pages/dashboard/doctor/DoctorDashboard';
+import { AdminDashboard } from './pages/dashboard/admin/AdminDashboard';
+import { ProtectedRoute } from './components/common/ProtectedRoute';
+import { BookAppointment } from './pages/dashboard/patient/BookAppointment';
+import { UploadDiagnosis } from './pages/dashboard/patient/UploadDiagnosis';
+import { DoctorVerification } from './pages/dashboard/admin/DoctorVerification';
+import  NotFoundPage  from './pages/404';
 
 export const AppRoutes = () => {
   return (
@@ -82,7 +82,7 @@ export const AppRoutes = () => {
       />
 
       {/* 404 Route */}
-      <Route path="*" element={<PageNotFound />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };

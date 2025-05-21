@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface FormData {
   notes: string;
-  file: File | null;
+  // removed file here
 }
 
 export const UploadDiagnosis = () => {
@@ -23,7 +23,10 @@ export const UploadDiagnosis = () => {
   });
 
   const onSubmit = async (data: FormData) => {
-    if (!user?.id || !file) return;
+    if (!user?.id || !file) {
+      alert('Please upload an image file');
+      return;
+    }
     
     try {
       await uploadImage(file, data.notes, user.id);
@@ -43,10 +46,10 @@ export const UploadDiagnosis = () => {
       </Typography>
 
       <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ maxWidth: 600 }}>
-        <ImageUploader 
-          onImageUpload={(file) => setFile(file)}
-          sx={{ mb: 3 }}
-        />
+        <Box sx={{ mb: 3 }}>
+          <ImageUploader onImageUpload={(file) => setFile(file)} />
+        </Box>
+
         <TextField
           label="Additional Notes"
           multiline
@@ -57,6 +60,7 @@ export const UploadDiagnosis = () => {
           helperText={errors.notes?.message}
           sx={{ mb: 3 }}
         />
+
         <Button type="submit" variant="contained" size="large">
           Submit for Diagnosis
         </Button>

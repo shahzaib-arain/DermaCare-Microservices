@@ -26,6 +26,5 @@ export const appointmentSchema = yup.object().shape({
 });
 
 export const diagnosisSchema = yup.object().shape({
-  file: yup.mixed().required('Image is required'),
   notes: yup.string().required('Notes are required'),
 });
