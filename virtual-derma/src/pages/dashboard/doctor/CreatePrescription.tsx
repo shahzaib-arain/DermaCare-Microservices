@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, TextField, Button, MenuItem, Autocomplete } from '@mui/material';
+import { Box, Typography, TextField, Button, Autocomplete } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useApi } from '../../../hooks/useApi';
 import { useEffect, useState } from 'react';
@@ -37,11 +37,13 @@ export const CreatePrescription = () => {
 
   const handleSubmit = async () => {
     if (!user?.id) return;
-    
+
     try {
       await createPrescription({
-        patientId: 'patient-id-here', // You'll need to get this from context or params
-        items
+          patientId: 'patient-id-here',
+          items,
+          doctorId: '',
+          status: ''
       }, user.id);
       navigate('/doctor/prescriptions');
     } catch (error) {
@@ -83,35 +85,31 @@ export const CreatePrescription = () => {
         <TextField
           label="Patient ID"
           fullWidth
-          value="patient-id-here" // Replace with actual patient ID
+          value="patient-id-here"
           sx={{ mb: 3 }}
           disabled
         />
 
         {items.map((item, index) => (
-          <Box key={index} sx={{ 
-            p: 3, 
-            mb: 3, 
-            border: '1px solid', 
-            borderColor: 'divider', 
-            borderRadius: 1 
+          <Box key={index} sx={{
+            p: 3,
+            mb: 3,
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 1
           }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
                 <Autocomplete
                   options={medicines || []}
                   getOptionLabel={(option) => option.name}
                   renderInput={(params) => (
-                    <TextField 
-                      {...params} 
-                      label="Medicine" 
-                      required 
-                    />
+                    <TextField {...params} label="Medicine" required />
                   )}
                   onChange={(_, value) => updateItem(index, 'medicineId', value?.id || '')}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
                 <TextField
                   label="Dosage"
                   fullWidth
@@ -119,8 +117,8 @@ export const CreatePrescription = () => {
                   onChange={(e) => updateItem(index, 'dosage', e.target.value)}
                   required
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
                 <TextField
                   label="Duration"
                   fullWidth
@@ -128,8 +126,8 @@ export const CreatePrescription = () => {
                   onChange={(e) => updateItem(index, 'duration', e.target.value)}
                   required
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
                 <TextField
                   label="Instructions"
                   fullWidth
@@ -137,32 +135,24 @@ export const CreatePrescription = () => {
                   onChange={(e) => updateItem(index, 'instructions', e.target.value)}
                   required
                 />
-              </Grid>
-              {items.length > 1 && (
-                <Grid item xs={12}>
-                  <Button 
-                    color="error"
-                    onClick={() => removeItem(index)}
-                  >
-                    Remove
-                  </Button>
-                </Grid>
-              )}
-            </Grid>
+              </Box>
+            </Box>
+
+            {items.length > 1 && (
+              <Box sx={{ mt: 2 }}>
+                <Button color="error" onClick={() => removeItem(index)}>
+                  Remove
+                </Button>
+              </Box>
+            )}
           </Box>
         ))}
 
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button 
-            variant="outlined"
-            onClick={addItem}
-          >
+          <Button variant="outlined" onClick={addItem}>
             Add Another Medicine
           </Button>
-          <Button 
-            type="submit"
-            variant="contained"
-          >
+          <Button type="submit" variant="contained">
             Create Prescription
           </Button>
         </Box>

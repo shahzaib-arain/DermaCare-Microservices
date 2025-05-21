@@ -1,4 +1,4 @@
-import { Box, Typography, Grid } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 import { StatsCard } from '../../../components/dashboard/StatsCard';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useApi } from '../../../hooks/useApi';
@@ -37,35 +37,44 @@ export const DoctorDashboard = () => {
         Doctor Dashboard
       </Typography>
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 4 }}>
-        Welcome back, Dr. {user?.fullName?.split(' ')[1]}
+        Welcome back, Dr. {user?.email?.split(' ')[1]}
       </Typography>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={4}>
+      {/* Replace Grid with Flexbox */}
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: 3, 
+          mb: 4,
+          justifyContent: 'space-between' 
+        }}
+      >
+        <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Today's Appointments"
             value={todayAppointments}
             icon={EventNoteIcon}
             color="primary"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        </Box>
+        <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Pending Diagnoses"
             value="5"
             icon={HealingIcon}
             color="secondary"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        </Box>
+        <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Prescriptions This Week"
             value="12"
             icon={LocalPharmacyIcon}
             color="success"
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       <Box sx={{ 
         backgroundColor: 'background.paper',

@@ -1,28 +1,67 @@
 import { Box, Typography, Container, Link } from '@mui/material';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { registerPatientSchema } from '../../utils/validationSchemas';
+import * as yup from 'yup';
 import { TextField } from '../../components/common/TextField';
 import { Button } from '../../components/common/Button';
 import { registerPatient } from '../../api/authService';
 import { useNavigate } from 'react-router-dom';
 
-interface FormData {
+// Type definitions
+interface FormValues {
   fullName: string;
   email: string;
   password: string;
   phone: string;
 }
 
+interface RegisterDTO {
+  fullName: string;
+  email: string;
+  password: string;
+  phone: string;
+  role: string;
+}
+
+// Yup validation schema
+const registerPatientSchema = yup.object({
+  fullName: yup.string().required('Full name is required'),
+  email: yup.string().email('Invalid email').required('Email is required'),
+  password: yup
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .required('Password is required'),
+  phone: yup
+    .string()
+    .matches(/^[0-9]+$/, 'Phone number must contain only digits')
+    .min(10, 'Phone number must be at least 10 digits')
+    .required('Phone number is required'),
+});
+
 export const RegisterPatient = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: yupResolver(registerPatientSchema)
-  });
   const navigate = useNavigate();
 
-  const onSubmit = async (data: FormData) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({
+    resolver: yupResolver(registerPatientSchema), // <-- Here the fix: no generic argument
+    defaultValues: {
+      fullName: '',
+      email: '',
+      password: '',
+      phone: '',
+    },
+  });
+
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
-      await registerPatient(data);
+      const registrationData: RegisterDTO = {
+        ...data,
+        role: 'patient',
+      };
+      await registerPatient(registrationData);
       navigate('/login');
     } catch (error) {
       console.error('Registration failed:', error);
@@ -31,20 +70,22 @@ export const RegisterPatient = () => {
 
   return (
     <Container maxWidth="sm" sx={{ py: 8 }}>
-      <Box sx={{ 
-        p: 4, 
-        boxShadow: 3, 
-        borderRadius: 2,
-        backgroundColor: 'background.paper'
-      }}>
+      <Box
+        sx={{
+          p: 4,
+          boxShadow: 3,
+          borderRadius: 2,
+          backgroundColor: 'background.paper',
+        }}
+      >
         <Typography variant="h4" align="center" gutterBottom>
           Patient Registration
         </Typography>
         <Typography variant="body1" align="center" color="text.secondary" sx={{ mb: 4 }}>
           Create your Virtual DermaCare account
         </Typography>
-        
-        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
           <TextField
             label="Full Name"
             {...register('fullName')}
@@ -79,17 +120,12 @@ export const RegisterPatient = () => {
             fullWidth
             sx={{ mb: 3 }}
           />
-          
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            size="large"
-          >
-            Register
+
+          <Button type="submit" variant="contained" fullWidth size="large" disabled={isSubmitting}>
+            {isSubmitting ? 'Registering...' : 'Register'}
           </Button>
         </Box>
-        
+
         <Box sx={{ mt: 3, textAlign: 'center' }}>
           <Typography variant="body2">
             Already have an account?{' '}

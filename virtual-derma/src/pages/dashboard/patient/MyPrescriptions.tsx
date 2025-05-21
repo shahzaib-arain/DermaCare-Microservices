@@ -14,7 +14,7 @@ export const MyPrescriptions = () => {
     if (user?.id) {
       fetchPrescriptions({
         url: `/api/pharmacy/prescription/patient/${user.id}`,
-        method: 'get'
+        method: 'get',
       });
     }
   }, [user, fetchPrescriptions]);
@@ -46,17 +46,13 @@ export const MyPrescriptions = () => {
               {prescription.items.map((item, index) => (
                 <ListItem key={index}>
                   <ListItemText
-                    primary={`${item.medicineName} - ${item.dosage}`}
+                    primary={`${item.medicineName ?? 'Unknown Medicine'} - ${item.dosage}`}
                     secondary={`${item.duration} • ${item.instructions}`}
                   />
                 </ListItem>
               ))}
             </List>
-            <Button 
-              variant="outlined" 
-              sx={{ mt: 2 }}
-              disabled={prescription.status !== 'ACTIVE'}
-            >
+            <Button variant="outlined" sx={{ mt: 2 }} disabled={prescription.status !== 'ACTIVE'}>
               Order Medicines
             </Button>
           </AccordionDetails>

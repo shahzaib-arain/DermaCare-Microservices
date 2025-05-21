@@ -27,7 +27,9 @@ export const Login = () => {
           Access your Virtual DermaCare account
         </Typography>
         
-        <LoginForm />
+        <LoginForm onSuccess={function (): void {
+                  throw new Error('Function not implemented.');
+              } } />
         
         <Box sx={{ mt: 3, textAlign: 'center' }}>
           <Typography variant="body2">

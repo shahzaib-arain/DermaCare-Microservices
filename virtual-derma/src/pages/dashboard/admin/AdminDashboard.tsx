@@ -1,4 +1,4 @@
-import { Box, Typography, Grid } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 import { StatsCard } from '../../../components/dashboard/StatsCard';
 import { useApi } from '../../../hooks/useApi';
 import { useEffect } from 'react';
@@ -7,10 +7,29 @@ import GroupIcon from '@mui/icons-material/Group';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MedicationIcon from '@mui/icons-material/Medication';
 
+// Example interfaces — replace with your actual types
+interface DoctorDTO {
+  id: string;
+  name: string;
+  // other doctor properties
+}
+
+interface PatientDTO {
+  id: string;
+  name: string;
+  // other patient properties
+}
+
+interface MedicineDTO {
+  medicineId: string;
+  name: string;
+  // other medicine properties
+}
+
 export const AdminDashboard = () => {
-  const { data: doctors, fetchData: fetchDoctors } = useApi();
-  const { data: patients, fetchData: fetchPatients } = useApi();
-  const { data: medicines, fetchData: fetchMedicines } = useApi();
+  const { data: doctors, fetchData: fetchDoctors } = useApi<DoctorDTO[]>();
+  const { data: patients, fetchData: fetchPatients } = useApi<PatientDTO[]>();
+  const { data: medicines, fetchData: fetchMedicines } = useApi<MedicineDTO[]>();
 
   useEffect(() => {
     fetchDoctors({ url: '/api/admin/doctors/verified', method: 'get' });
@@ -27,61 +46,66 @@ export const AdminDashboard = () => {
         System overview and management
       </Typography>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      {/* Flexbox container replacing Grid */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 3,
+          mb: 4,
+          justifyContent: 'space-between',
+        }}
+      >
+        <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Total Doctors"
-            value={doctors?.length || 0}
+            value={Array.isArray(doctors) ? doctors.length : 0}
             icon={LocalHospitalIcon}
             color="primary"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        </Box>
+        <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Pending Verifications"
             value="5"
             icon={AdminPanelSettingsIcon}
             color="secondary"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        </Box>
+        <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Registered Patients"
-            value={patients?.length || 0}
+            value={Array.isArray(patients) ? patients.length : 0}
             icon={GroupIcon}
             color="success"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        </Box>
+        <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Medicines in Stock"
-            value={medicines?.length || 0}
+            value={Array.isArray(medicines) ? medicines.length : 0}
             icon={MedicationIcon}
             color="warning"
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
-      <Box sx={{ 
-        backgroundColor: 'background.paper',
-        p: 3,
-        borderRadius: 2,
-        boxShadow: 1
-      }}>
+      <Box
+        sx={{
+          backgroundColor: 'background.paper',
+          p: 3,
+          borderRadius: 2,
+          boxShadow: 1,
+        }}
+      >
         <Typography variant="h6" gutterBottom>
           Quick Actions
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button 
-            variant="contained"
-            href="/admin/doctor-verification"
-          >
+          <Button variant="contained" href="/admin/doctor-verification">
             Verify Doctors
           </Button>
-          <Button 
-            variant="contained"
-            href="/admin/manage-medicines"
-          >
+          <Button variant="contained" href="/admin/manage-medicines">
             Manage Medicines
           </Button>
         </Box>

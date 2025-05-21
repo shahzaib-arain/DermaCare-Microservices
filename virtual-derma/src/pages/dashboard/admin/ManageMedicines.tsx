@@ -1,6 +1,18 @@
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  IconButton
+} from '@mui/material';
 import { useApi } from '../../../hooks/useApi';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { MedicineDTO } from '../../../types/pharmacyTypes';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -9,8 +21,6 @@ import { useNavigate } from 'react-router-dom';
 
 export const ManageMedicines = () => {
   const { data: medicines, fetchData: fetchMedicines } = useApi<MedicineDTO[]>();
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedMedicine, setSelectedMedicine] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,27 +30,20 @@ export const ManageMedicines = () => {
     });
   }, [fetchMedicines]);
 
-  const handleDeleteClick = (medicineId: string) => {
-    setSelectedMedicine(medicineId);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (selectedMedicine) {
-      try {
-        await fetchMedicines({
-          url: `/api/pharmacy/medicines/${selectedMedicine}`,
-          method: 'delete'
-        });
-        fetchMedicines({
-          url: '/api/pharmacy/medicines',
-          method: 'get'
-        });
-      } catch (error) {
-        console.error('Failed to delete medicine:', error);
-      }
+  const handleDeleteClick = async (medicineId: string | number) => {
+    try {
+      await fetchMedicines({
+        url: `/api/pharmacy/medicines/${medicineId}`,
+        method: 'delete'
+      });
+      // Refresh medicines list after deletion
+      fetchMedicines({
+        url: '/api/pharmacy/medicines',
+        method: 'get'
+      });
+    } catch (error) {
+      console.error('Failed to delete medicine:', error);
     }
-    setDeleteDialogOpen(false);
   };
 
   return (
@@ -91,39 +94,15 @@ export const ManageMedicines = () => {
                   >
                     <EditIcon />
                   </IconButton>
-                  <IconButton 
-                    color="error"
-                    onClick={() => handleDeleteClick(medicine.medicineId)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+              <IconButton onClick={() => handleDeleteClick(medicine.medicineId.toString())}>
+  <DeleteIcon />
+</IconButton>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle>Delete Medicine</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete this medicine? This action cannot be undone.
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button 
-            onClick={handleDeleteConfirm} 
-            color="error"
-            variant="contained"
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };
