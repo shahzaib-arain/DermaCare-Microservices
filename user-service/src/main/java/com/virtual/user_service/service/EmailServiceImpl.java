@@ -3,6 +3,7 @@ package com.virtual.user_service.service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -15,6 +16,7 @@ import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
@@ -35,8 +37,8 @@ public class EmailServiceImpl implements EmailService {
             Context context = new Context(Locale.getDefault());
             context.setVariable("name", name);
 
-            // Correct template path - should match your actual template file location
-            String htmlContent = templateEngine.process("email/welcome-email.html", context);
+            // Ensure this path matches your actual template location
+            String htmlContent = templateEngine.process("email/welcome-email", context);
 
             helper.setText(htmlContent, true);
             helper.setTo(toEmail);
@@ -44,9 +46,12 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(mimeMessage);
+            log.info("Welcome email sent to {}", toEmail);
         } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send welcome email", e);
+            log.error("Failed to send welcome email to {}", toEmail, e);
+            throw new RuntimeException("Failed to send welcome email to " + toEmail, e);
         }
+
     }
 
     @Async

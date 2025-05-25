@@ -10,8 +10,8 @@ export const useAuthCheck = () => {
 };
 
 export const useUserRole = () => {
-  const { userRole } = useAuth();
-  return userRole;
+  const { user } = useAuth();
+  return user?.role;  // Now getting role from user object
 };
 
 export const useUser = () => {

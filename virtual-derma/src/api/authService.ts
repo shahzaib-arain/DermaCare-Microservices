@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { JwtResponse, RegisterDTO } from '../types/authTypes';
 
-const API_BASE_URL = 'http://localhost:9092/security-service/auth';
+const API_BASE_URL = '/auth'; // For security-service endpoints
 
 export const login = async (username: string, password: string): Promise<JwtResponse> => {
   const formData = new FormData();

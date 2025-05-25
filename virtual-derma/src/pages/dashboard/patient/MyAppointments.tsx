@@ -28,7 +28,6 @@ export const MyAppointments = () => {
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
         View and manage your upcoming and past appointments
       </Typography>
-
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -64,10 +63,10 @@ export const MyAppointments = () => {
                 <TableCell>
                   {appointment.status === 'BOOKED' && (
                     <>
-                      <IconButton color="primary">
+                      <IconButton color="primary" size="large">
                         <EditIcon />
                       </IconButton>
-                      <IconButton color="error">
+                      <IconButton color="error" size="large">
                         <CancelIcon />
                       </IconButton>
                     </>

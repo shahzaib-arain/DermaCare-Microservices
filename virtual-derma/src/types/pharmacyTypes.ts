@@ -1,13 +1,32 @@
-import { Key } from 'react';
-
+// src/types/pharmacyTypes.ts
 export interface MedicineDTO {
-  medicineId: Key | null | undefined;
-  id: string;
+  id: string;  // Changed from medicineId to id for consistency
   name: string;
-  description: string;
-  manufacturer: string;
-  price: number;
-  stock: number;
+  dosage: string;
+  manufacturer?: string;
+  price?: number;
+  description?: string;
+  stock?: number;
   category?: string;
-  dosageForm?: string;
+}
+
+export interface PrescriptionItemDTO {
+  id?: string;
+  medicineId: string;
+  medicineName?: string;
+  dosage: string;
+  quantity: number;
+  instructions?: string;
+  duration?: string;  // Added duration to match form
+}
+
+export interface PrescriptionDTO {
+  id: string;
+  patientId: string;
+  doctorId: string;
+  doctorName: string;
+  dateCreated: string;
+  status: 'ACTIVE' | 'FULFILLED' | 'EXPIRED' | 'CANCELLED';
+  items: PrescriptionItemDTO[];
+  notes?: string;
 }

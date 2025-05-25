@@ -1,3 +1,4 @@
+// src/pages/dashboard/admin/ManageMedicines.tsx
 import {
   Box,
   Typography,
@@ -30,13 +31,12 @@ export const ManageMedicines = () => {
     });
   }, [fetchMedicines]);
 
-  const handleDeleteClick = async (medicineId: string | number) => {
+  const handleDeleteClick = async (id: string) => {
     try {
       await fetchMedicines({
-        url: `/api/pharmacy/medicines/${medicineId}`,
+        url: `/api/pharmacy/medicines/${id}`,
         method: 'delete'
       });
-      // Refresh medicines list after deletion
       fetchMedicines({
         url: '/api/pharmacy/medicines',
         method: 'get'
@@ -54,7 +54,6 @@ export const ManageMedicines = () => {
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
         View and manage the pharmacy inventory
       </Typography>
-
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
         <Button 
           variant="contained"
@@ -64,7 +63,6 @@ export const ManageMedicines = () => {
           Add Medicine
         </Button>
       </Box>
-
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -80,23 +78,23 @@ export const ManageMedicines = () => {
           </TableHead>
           <TableBody>
             {medicines?.map((medicine) => (
-              <TableRow key={medicine.medicineId}>
+              <TableRow key={medicine.id}>
                 <TableCell>{medicine.name}</TableCell>
                 <TableCell>{medicine.description}</TableCell>
                 <TableCell>{medicine.manufacturer}</TableCell>
-                <TableCell>${medicine.price.toFixed(2)}</TableCell>
-                <TableCell>{medicine.stock}</TableCell>
-                <TableCell>{medicine.category}</TableCell>
+                <TableCell>${medicine.price?.toFixed(2) || '0.00'}</TableCell>
+                <TableCell>{medicine.stock || 'N/A'}</TableCell>
+                <TableCell>{medicine.category || 'N/A'}</TableCell>
                 <TableCell>
-                  <IconButton 
+                  <IconButton
                     color="primary"
-                    onClick={() => navigate(`/admin/medicines/edit/${medicine.medicineId}`)}
-                  >
+                    onClick={() => navigate(`/admin/medicines/edit/${medicine.id}`)}
+                    size="large">
                     <EditIcon />
                   </IconButton>
-              <IconButton onClick={() => handleDeleteClick(medicine.medicineId.toString())}>
-  <DeleteIcon />
-</IconButton>
+                  <IconButton onClick={() => handleDeleteClick(medicine.id)} size="large">
+                    <DeleteIcon />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}

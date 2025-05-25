@@ -1,8 +1,10 @@
+// src/pages/dashboard/doctor/CreatePrescription.tsx
 import { Box, Typography, TextField, Button, Autocomplete } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add'; // Added this import
 import { useForm } from 'react-hook-form';
 import { useApi } from '../../../hooks/useApi';
 import { useEffect, useState } from 'react';
-import { MedicineDTO } from '../../../types/pharmacyTypes';
+import { MedicineDTO, PrescriptionItemDTO } from '../../../types/pharmacyTypes';
 import { createPrescription } from '../../../api/pharmacyService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +16,7 @@ interface FormData {
     dosage: string;
     duration: string;
     instructions: string;
+    quantity: number;
   }>;
 }
 
@@ -25,7 +28,8 @@ export const CreatePrescription = () => {
     medicineId: '',
     dosage: '',
     duration: '',
-    instructions: ''
+    instructions: '',
+    quantity: 1
   }]);
 
   useEffect(() => {
@@ -40,10 +44,17 @@ export const CreatePrescription = () => {
 
     try {
       await createPrescription({
-          patientId: 'patient-id-here',
-          items,
-          doctorId: '',
-          status: ''
+        patientId: 'patient-id-here',
+        items: items.map(item => ({
+          medicineId: item.medicineId,
+          dosage: item.dosage,
+          quantity: item.quantity,
+          instructions: item.instructions,
+          duration: item.duration
+        })),
+        doctorId: user.id,
+        doctorName: `${user.firstName} ${user.lastName}`,
+        status: 'ACTIVE' as const
       }, user.id);
       navigate('/doctor/prescriptions');
     } catch (error) {
@@ -56,7 +67,8 @@ export const CreatePrescription = () => {
       medicineId: '',
       dosage: '',
       duration: '',
-      instructions: ''
+      instructions: '',
+      quantity: 1
     }]);
   };
 
@@ -66,14 +78,14 @@ export const CreatePrescription = () => {
     setItems(newItems);
   };
 
-  const updateItem = (index: number, field: keyof FormData['items'][0], value: string) => {
+  const updateItem = (index: number, field: keyof FormData['items'][0], value: string | number) => {
     const newItems = [...items];
-    newItems[index][field] = value;
+    newItems[index][field] = value as never;
     setItems(newItems);
   };
 
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
         Create Prescription
       </Typography>
@@ -81,7 +93,14 @@ export const CreatePrescription = () => {
         Prescribe medications for your patient
       </Typography>
 
-      <Box component="form" onSubmit={handleSubmit}>
+      <Box 
+        component="form" 
+        onSubmit={(e) => { 
+          e.preventDefault(); 
+          handleSubmit(); 
+        }}
+        sx={{ width: '100%' }}
+      >
         <TextField
           label="Patient ID"
           fullWidth
@@ -91,13 +110,16 @@ export const CreatePrescription = () => {
         />
 
         {items.map((item, index) => (
-          <Box key={index} sx={{
-            p: 3,
-            mb: 3,
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 1
-          }}>
+          <Box 
+            key={index} 
+            sx={{
+              p: 3,
+              mb: 3,
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 1
+            }}
+          >
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
               <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
                 <Autocomplete
@@ -109,7 +131,8 @@ export const CreatePrescription = () => {
                   onChange={(_, value) => updateItem(index, 'medicineId', value?.id || '')}
                 />
               </Box>
-              <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
+              
+              <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
                 <TextField
                   label="Dosage"
                   fullWidth
@@ -118,7 +141,8 @@ export const CreatePrescription = () => {
                   required
                 />
               </Box>
-              <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
+              
+              <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
                 <TextField
                   label="Duration"
                   fullWidth
@@ -127,6 +151,19 @@ export const CreatePrescription = () => {
                   required
                 />
               </Box>
+              
+              <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+                <TextField
+                  label="Quantity"
+                  type="number"
+                  fullWidth
+                  value={item.quantity}
+                  onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                  required
+                  inputProps={{ min: 1 }}
+                />
+              </Box>
+              
               <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
                 <TextField
                   label="Instructions"
@@ -134,25 +171,39 @@ export const CreatePrescription = () => {
                   value={item.instructions}
                   onChange={(e) => updateItem(index, 'instructions', e.target.value)}
                   required
+                  multiline
+                  rows={2}
                 />
               </Box>
             </Box>
 
             {items.length > 1 && (
-              <Box sx={{ mt: 2 }}>
-                <Button color="error" onClick={() => removeItem(index)}>
-                  Remove
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                <Button 
+                  color="error" 
+                  onClick={() => removeItem(index)}
+                  variant="outlined"
+                >
+                  Remove Item
                 </Button>
               </Box>
             )}
           </Box>
         ))}
 
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button variant="outlined" onClick={addItem}>
+        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+          <Button 
+            variant="outlined" 
+            onClick={addItem}
+            startIcon={<AddIcon />}
+          >
             Add Another Medicine
           </Button>
-          <Button type="submit" variant="contained">
+          <Button 
+            type="submit" 
+            variant="contained"
+            size="large"
+          >
             Create Prescription
           </Button>
         </Box>

@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { AppointmentDTO } from '../types/appointmentTypes';
 
-const API_BASE_URL = 'http://localhost:9092/dermacare-service/api/appointment';
-
+const API_BASE_URL = '/api/appointment'; // Matches gateway route exactly
 const getAuthConfig = (token: string) => ({
   headers: { Authorization: `Bearer ${token}` },
 });

@@ -16,6 +16,9 @@ interface DecodedToken {
   userId: string;
   exp: number;
   iat: number;
+  firstName?: string;
+  lastName?: string;
+  // Add any other claims your JWT might have
 }
 
 interface AuthUser {
@@ -23,12 +26,15 @@ interface AuthUser {
   email: string;
   id: string;
   role: string;
+  firstName: string;
+  lastName: string;
+  // Add any other user properties you need
 }
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: AuthUser | null;
-  userRole: string | null;  // Added userRole here
+  userRole: string | null;
   loading: boolean;
   login: (token: string) => void;
   logout: () => void;
@@ -65,6 +71,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               email: decoded.sub,
               id: decoded.userId,
               role: decoded.roles[0].replace('ROLE_', ''),
+              firstName: decoded.firstName || '', // Provide default value
+              lastName: decoded.lastName || '',   // Provide default value
             },
             loading: false,
           });
@@ -100,6 +108,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email: decoded.sub,
         id: decoded.userId,
         role: decoded.roles[0].replace('ROLE_', ''),
+        firstName: decoded.firstName || '', // Provide default value
+        lastName: decoded.lastName || '',   // Provide default value
       },
       loading: false,
     });
@@ -120,7 +130,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         isAuthenticated: state.isAuthenticated,
         user: state.user,
-        userRole: state.user ? state.user.role : null,  // Provide userRole here
+        userRole: state.user ? state.user.role : null,
         loading: state.loading,
         login,
         logout,

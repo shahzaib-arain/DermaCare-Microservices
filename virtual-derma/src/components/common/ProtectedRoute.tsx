@@ -1,26 +1,27 @@
-import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+// src/components/common/ProtectedRoute.tsx
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { ReactElement } from 'react';
 
 interface ProtectedRouteProps {
-  children: ReactNode;
-  requiredRole?: 'ADMIN' | 'DOCTOR' | 'PATIENT';
+  requiredRole?: string;
+  children?: React.ReactNode;
 }
 
-export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
-  const { isAuthenticated, userRole, loading } = useAuth();
+export const ProtectedRoute = ({ requiredRole, children }: ProtectedRouteProps): ReactElement => {
+  const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>; // Or a spinner component
+    return <div>Loading...</div>; // Return a proper loading component
   }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  if (requiredRole && userRole !== requiredRole) {
+  if (requiredRole && user.role !== requiredRole) {
     return <Navigate to="/" replace />;
   }
 
-  return <>{children}</>;
+  return children ? <>{children}</> : <Outlet />;
 };

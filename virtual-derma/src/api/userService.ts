@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { UserResponseDTO, DoctorVerificationDTO } from '../types/userTypes';
 
-const API_BASE_URL = 'http://localhost:9092/user-service/api';
+const API_BASE_URL = '/api/auth'; // For user-service auth endpoints
+const USER_API_BASE = '/api'; // For other user-service endpoints
 
 // Common function to set auth header
 const getAuthConfig = (token: string) => ({

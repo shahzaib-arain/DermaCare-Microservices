@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Dialog, Tab, Tabs } from '@mui/material';
 import { LoginForm } from './LoginForm';
-import { RegisterPatientForm } from './RegisterPatientForm';
-import { RegisterDoctorForm } from './RegisterDoctorForm';
+import { RegisterPatient } from 'pages/auth/RegisterPatient';
+import { RegisterDoctor } from 'pages/auth/RegisterDoctor';
 
 interface AuthModalProps {
   open: boolean;
@@ -28,8 +28,8 @@ export const AuthModal = ({ open, onClose, initialTab = 'login' }: AuthModalProp
 
       <div style={{ padding: '0 24px 24px' }}>
         {activeTab === 'login' && <LoginForm onSuccess={onClose} />}
-        {activeTab === 'register-patient' && <RegisterPatientForm onSuccess={onClose} />}
-        {activeTab === 'register-doctor' && <RegisterDoctorForm onSuccess={onClose} />}
+        {activeTab === 'register-patient' && <RegisterPatient onSuccess={onClose} />}
+        {activeTab === 'register-doctor' && <RegisterDoctor onSuccess={onClose} />}
       </div>
     </Dialog>
   );

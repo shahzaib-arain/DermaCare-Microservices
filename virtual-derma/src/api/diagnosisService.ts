@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { DiagnosisDTO } from '../types/diagnosisTypes';
 
-const API_BASE_URL = 'http://localhost:9092/dermacare-service/api/diagnosis';
-
+const API_BASE_URL = '/api/diagnosis'; // Matches gateway route exactly
 const getAuthConfig = (token: string) => ({
   headers: {
     Authorization: `Bearer ${token}`,

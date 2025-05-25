@@ -9,21 +9,21 @@ const testimonials = [
     name: 'Sarah Johnson',
     role: 'Patient',
     text: 'The virtual consultation was so convenient and the doctor was extremely knowledgeable.',
-    avatar: '/images/avatars/1.jpg'
+    avatar: '/images/avatars/3.jpg'
   },
   {
     id: 2,
     name: 'Michael Chen',
     role: 'Patient',
     text: 'I got my skin condition diagnosed and treated without leaving my home. Amazing service!',
-    avatar: '/images/avatars/2.jpg'
+    avatar: '/images/avatars/1.jpg'
   },
   {
     id: 3,
-    name: 'Emma Williams',
+    name: 'William Wotson',
     role: 'Patient',
     text: 'The dermatologist was very thorough and my prescription arrived the same day.',
-    avatar: '/images/avatars/3.jpg'
+    avatar: '/images/avatars/2.jpg'
   }
 ];
 

@@ -1,14 +1,14 @@
+// src/api/pharmacyService.ts
 import axios from 'axios';
 import {
   PrescriptionDTO,
   MedicineDTO,
-  PrescriptionItemDTO,
+  PrescriptionItemDTO
 } from '../types/pharmacyTypes';
 
-const API_BASE_URL = 'http://localhost:9092/dermacare-service/api/pharmacy';
-
+const API_BASE_URL = '/api/pharmacy'; // Matches gateway route exactly
 const getAuthConfig = (token: string) => ({
-  headers: { Authorization: `Bearer ${token}` },
+  headers: { Authorization: `Bearer ${token}` }
 });
 
 export const createPrescription = async (
