@@ -19,7 +19,12 @@ export const StatsCard = ({
   trendValue 
 }: StatsCardProps) => {
   return (
-    <Card sx={{ minWidth: 275, height: '100%' }}>
+   <Card sx={{ 
+  minWidth: 275, 
+  height: '100%',
+  width: '100%', // Add this
+  maxWidth: '100%' // Add this
+}}>
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="h5" component="div">

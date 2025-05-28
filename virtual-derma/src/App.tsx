@@ -4,7 +4,7 @@ import { Header } from './components/common/Header';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
 import { medicalTheme } from './styles/medicalTheme';
-import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import { AppRoutes } from './routes';
 
 
@@ -12,8 +12,9 @@ import { AppRoutes } from './routes';
 
 function App() {
   return (
+    <>
     <StyledEngineProvider injectFirst>
-      (<ThemeProvider theme={medicalTheme}>
+      <ThemeProvider theme={medicalTheme}>
         <Box sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
           <Header />
           <Box sx={{ display: 'flex', flex: 1 }}>
@@ -24,8 +25,9 @@ function App() {
           </Box>
           <Footer />
         </Box>
-      </ThemeProvider>)
+      </ThemeProvider>
     </StyledEngineProvider>
+    </>
   );
 }
 

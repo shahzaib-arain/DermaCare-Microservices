@@ -35,25 +35,32 @@ export const Navbar = () => {
   );
 
   return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: 240,
-        flexShrink: 0,
-        [`& .MuiDrawer-paper`]: { width: 240, boxSizing: 'border-box' },
-      }}
-    >
-      <Toolbar /> {/* For proper spacing below app bar */}
-      <List>
-        {filteredItems.map((item) => (
-          <ListItem disablePadding key={item.text}>
-            <ListItemButton component={Link} to={item.path}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Drawer>
+    <></>
+//    <Drawer
+//   variant="permanent"
+//   sx={{
+//     width: 240,
+//     flexShrink: 0,
+//     [`& .MuiDrawer-paper`]: { 
+//       width: 240, 
+//       boxSizing: 'border-box',
+//       position: 'relative', // Fix positioning
+//       display:"flex",
+//       justifyItems:"center"
+//     },
+//   }}
+// >
+//       <Toolbar /> {/* For proper spacing below app bar */}
+//       <List>
+//         {filteredItems.map((item) => (
+//           <ListItem disablePadding key={item.text}>
+//             <ListItemButton component={Link} to={item.path}>
+//               <ListItemIcon>{item.icon}</ListItemIcon>
+//               <ListItemText primary={item.text} />
+//             </ListItemButton>
+//           </ListItem>
+//         ))}
+//       </List>
+//     </Drawer>
   );
 };

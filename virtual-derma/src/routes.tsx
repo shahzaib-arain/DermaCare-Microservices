@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Home } from './pages/public/Home';
 import { About } from './pages/public/About';
 import { Services } from './pages/public/Services';
@@ -6,14 +6,18 @@ import { Contact } from './pages/public/Contact';
 import { Login } from './pages/auth/Login';
 import { RegisterPatient } from './pages/auth/RegisterPatient';
 import { RegisterDoctor } from './pages/auth/RegisterDoctor';
+import { PatientLayout } from './pages/dashboard/patient/PatientLayout';
 import { PatientDashboard } from './pages/dashboard/patient/PatientDashboard';
 import { DoctorDashboard } from './pages/dashboard/doctor/DoctorDashboard';
 import { AdminDashboard } from './pages/dashboard/admin/AdminDashboard';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { BookAppointment } from './pages/dashboard/patient/BookAppointment';
 import { UploadDiagnosis } from './pages/dashboard/patient/UploadDiagnosis';
+import { MyAppointments } from './pages/dashboard/patient/MyAppointments';
+import { MyPrescriptions } from './pages/dashboard/patient/MyPrescriptions';
 import { DoctorVerification } from './pages/dashboard/admin/DoctorVerification';
 import  NotFoundPage  from './pages/404';
+import { Unauthorized } from './pages/Unauthorized';
 
 export const AppRoutes = () => {
   return (
@@ -24,38 +28,32 @@ export const AppRoutes = () => {
       <Route path="/services" element={<Services />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/register/patient" element={<RegisterPatient onSuccess={function (): void {
-              throw new Error('Function not implemented.');
-          } } />} />
-      <Route path="/register/doctor" element={<RegisterDoctor onSuccess={function (): void {
-              throw new Error('Function not implemented.');
-          } } />} />
+      <Route path="/unauthorized" element={<Unauthorized />} />
+      <Route 
+        path="/register/patient" 
+        element={<RegisterPatient onSuccess={() => window.location.href = '/patient/dashboard'} />} 
+      />
+      <Route 
+        path="/register/doctor" 
+        element={<RegisterDoctor onSuccess={() => window.location.href = '/doctor/dashboard'} />} 
+      />
 
       {/* Patient Routes */}
-      <Route
-        path="/patient/dashboard"
+      <Route 
+        path="/patient" 
         element={
           <ProtectedRoute requiredRole="PATIENT">
-            <PatientDashboard />
+            <PatientLayout />
           </ProtectedRoute>
         }
-      />
-      <Route
-        path="/patient/appointments/book"
-        element={
-          <ProtectedRoute requiredRole="PATIENT">
-            <BookAppointment />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/patient/diagnosis/upload"
-        element={
-          <ProtectedRoute requiredRole="PATIENT">
-            <UploadDiagnosis />
-          </ProtectedRoute>
-        }
-      />
+      >
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<PatientDashboard />} />
+        <Route path="appointments" element={<MyAppointments />} />
+        <Route path="appointments/book" element={<BookAppointment />} />
+        <Route path="prescriptions" element={<MyPrescriptions />} />
+        <Route path="upload-diagnosis" element={<UploadDiagnosis />} />
+      </Route>
 
       {/* Doctor Routes */}
       <Route

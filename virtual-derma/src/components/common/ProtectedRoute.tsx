@@ -1,27 +1,47 @@
-// src/components/common/ProtectedRoute.tsx
-import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { ReactElement } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { LoadingScreen } from '../../components/ui/LoadingScreen';
+import { ReactNode, useEffect } from 'react';
 
 interface ProtectedRouteProps {
-  requiredRole?: string;
-  children?: React.ReactNode;
+  children: ReactNode;
+  requiredRole?: 'PATIENT' | 'DOCTOR' | 'ADMIN'; // More specific type
 }
 
-export const ProtectedRoute = ({ requiredRole, children }: ProtectedRouteProps): ReactElement => {
-  const { user, loading } = useAuth();
+export const ProtectedRoute = ({ 
+  children, 
+  requiredRole
+}: ProtectedRouteProps) => {
+  const { isAuthenticated, user, loading, checkAuth } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Only check auth if we're not already loading and not authenticated
+    if (!loading && !isAuthenticated) {
+      checkAuth().catch(error => {
+        console.error('Auth check failed:', error);
+      });
+    }
+  }, [isAuthenticated, loading, checkAuth]);
 
   if (loading) {
-    return <div>Loading...</div>; // Return a proper loading component
+    return <LoadingScreen />;
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  if (!isAuthenticated) {
+    // Store the attempted URL for redirect after login
+    return <Navigate 
+      to="/login" 
+      state={{ from: location }} 
+      replace 
+    />;
   }
 
-  if (requiredRole && user.role !== requiredRole) {
-    return <Navigate to="/" replace />;
+  // Check role if required
+  if (requiredRole && user?.role !== requiredRole) {
+    console.warn(`Unauthorized access attempt: User role ${user?.role} tried to access ${requiredRole} route`);
+    return <Navigate to="/unauthorized" replace />;
   }
 
-  return children ? <>{children}</> : <Outlet />;
+  return <>{children}</>;
 };

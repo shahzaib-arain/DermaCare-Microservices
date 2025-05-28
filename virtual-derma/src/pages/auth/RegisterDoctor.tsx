@@ -2,6 +2,8 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { TextField, Button, Box, Typography } from '@mui/material';
+import { registerDoctor } from '../../api/authService';
+import { useState } from 'react';
 
 interface RegisterDoctorProps {
   onSuccess: () => void;
@@ -12,15 +14,17 @@ interface FormValues {
   email: string;
   password: string;
   phone: string;
-  licenseNumber: string;
+  degreeNumber: string;
+  specialization: string;
 }
 
 const schema = yup.object({
   fullName: yup.string().required('Full name is required'),
   email: yup.string().email('Invalid email').required('Email is required'),
   password: yup.string().min(8).required('Password is required'),
-  phone: yup.string().matches(/^[0-9]+$/, 'Phone number must be digits').min(10).required('Phone is required'),
-  licenseNumber: yup.string().required('License number is required'),
+  phone: yup.string().matches(/^[+0-9]+$/, 'Phone number must be valid').min(10).required('Phone is required'),
+  degreeNumber: yup.string().required('Degree number is required'),
+  specialization: yup.string().required('Specialization is required'),
 }).required();
 
 export const RegisterDoctor = ({ onSuccess }: RegisterDoctorProps) => {
@@ -28,20 +32,42 @@ export const RegisterDoctor = ({ onSuccess }: RegisterDoctorProps) => {
     resolver: yupResolver(schema),
   });
 
+  const [error, setError] = useState<string | null>(null);
+
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    setError(null);
     try {
-      // Replace with your API call, e.g. registerDoctor({ ...data, role: 'doctor' });
-      await new Promise(res => setTimeout(res, 1000)); // simulate async
+      const response = await registerDoctor({
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+        phone: data.phone,
+        role: "DOCTOR",
+        degreeNumber: data.degreeNumber,
+        specialization: data.specialization
+      });
       
-      onSuccess();
+      if (response.success) {
+        onSuccess();
+      } else {
+        throw new Error('Registration failed');
+      }
     } catch (error) {
+      setError('Registration failed. Please try again.');
       console.error('Registration failed:', error);
     }
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 1 }}>
       <Typography variant="h5" gutterBottom>Register as Doctor</Typography>
+      
+      {error && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
+      )}
+
       <TextField
         label="Full Name"
         {...register('fullName')}
@@ -76,14 +102,28 @@ export const RegisterDoctor = ({ onSuccess }: RegisterDoctorProps) => {
         margin="normal"
       />
       <TextField
-        label="License Number"
-        {...register('licenseNumber')}
-        error={!!errors.licenseNumber}
-        helperText={errors.licenseNumber?.message}
+        label="Degree Number"
+        {...register('degreeNumber')}
+        error={!!errors.degreeNumber}
+        helperText={errors.degreeNumber?.message}
         fullWidth
         margin="normal"
       />
-      <Button type="submit" variant="contained" fullWidth disabled={isSubmitting}>
+      <TextField
+        label="Specialization"
+        {...register('specialization')}
+        error={!!errors.specialization}
+        helperText={errors.specialization?.message}
+        fullWidth
+        margin="normal"
+      />
+      <Button 
+        type="submit" 
+        variant="contained" 
+        fullWidth 
+        disabled={isSubmitting}
+        sx={{ mt: 3, mb: 2 }}
+      >
         {isSubmitting ? 'Registering...' : 'Register'}
       </Button>
     </Box>

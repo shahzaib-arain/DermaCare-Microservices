@@ -24,6 +24,12 @@ const treatments = [
   },
   {
     id: 4,
+    name: 'Rosacea Treatment',
+    image: '/images/treatments/rosacea.jpg',
+    description: 'Control redness and inflammation'
+  },
+  {
+    id: 5,
     name: 'Skin Cancer Screening',
     image: '/images/treatments/screening.jpg',
     description: 'Early detection through virtual assessment'

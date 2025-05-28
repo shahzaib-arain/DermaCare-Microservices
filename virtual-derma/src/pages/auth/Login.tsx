@@ -1,49 +1,58 @@
-import { Box, Typography, Container, Link } from '@mui/material';
+import { Box, Typography, Container, Alert } from '@mui/material';
 import { LoginForm } from '../../components/common/LoginForm';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 export const Login = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [error, setError] = useState('');
 
-  if (isAuthenticated) {
-    navigate('/');
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      console.log('[Login] User authenticated, redirecting...');
+      const from = location.state?.from?.pathname || getDefaultRoute(user.role);
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, user, navigate, location]);
+
+  const getDefaultRoute = (role: string) => {
+    switch(role) {
+      case 'PATIENT': return '/patient/dashboard';
+      case 'DOCTOR': return '/doctor/dashboard';
+      case 'ADMIN': return '/admin/dashboard';
+      default: return '/';
+    }
+  };
+
+  const handleLogin = async (credentials: { username: string; password: string }) => {
+    try {
+      setError('');
+      await login(credentials.username, credentials.password);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      setError(errorMessage);
+      console.error('Login error:', errorMessage);
+    }
+  };
 
   return (
-    <Container maxWidth="sm" sx={{ py: 8 }}>
-      <Box sx={{ 
-        p: 4, 
-        boxShadow: 3, 
-        borderRadius: 2,
-        backgroundColor: 'background.paper'
-      }}>
+    <Container maxWidth="sm">
+      <Box sx={{ mt: 8, mb: 4 }}>
         <Typography variant="h4" align="center" gutterBottom>
           Sign In
         </Typography>
-        <Typography variant="body1" align="center" color="text.secondary" sx={{ mb: 4 }}>
-          Access your Virtual DermaCare account
-        </Typography>
-        
-        <LoginForm onSuccess={function (): void {
-                  throw new Error('Function not implemented.');
-              } } />
-        
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
-          <Typography variant="body2">
-            Don't have an account?{' '}
-            <Link href="/register/patient" underline="hover">
-              Register as Patient
-            </Link>{' '}
-            or{' '}
-            <Link href="/register/doctor" underline="hover">
-              Register as Doctor
-            </Link>
-          </Typography>
-        </Box>
       </Box>
+      
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
+          {error}
+        </Alert>
+      )}
+
+      <LoginForm onSubmit={handleLogin} />
     </Container>
   );
 };

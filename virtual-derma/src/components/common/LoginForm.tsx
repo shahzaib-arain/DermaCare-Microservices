@@ -1,55 +1,75 @@
 import { useState } from 'react';
-import { TextField, Button, Box } from '@mui/material';
+import { TextField, Button, Box, CircularProgress, Alert } from '@mui/material';
 
 interface LoginFormProps {
-  onSuccess: () => void;
+  onSubmit: (credentials: { username: string; password: string }) => Promise<void>;
 }
 
-export const LoginForm = ({ onSuccess }: LoginFormProps) => {
-  const [email, setEmail] = useState('');
+export const LoginForm = ({ onSubmit }: LoginFormProps) => {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      // Replace with your login API call
-      // await loginUser({ email, password });
+    
+    if (!username.trim() || !password.trim()) {
+      setError('Please enter both username and password');
+      return;
+    }
 
-      // Simulate success:
-      setTimeout(() => {
-        setIsSubmitting(false);
-        onSuccess();
-      }, 1000);
+    setIsSubmitting(true);
+    setError('');
+    
+    try {
+      await onSubmit({ username, password });
     } catch (error) {
+      setError(error instanceof Error ? error.message : 'Login failed');
+    } finally {
       setIsSubmitting(false);
-      console.error('Login failed:', error);
     }
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} noValidate>
+    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      
       <TextField
-        label="Email"
-        type="email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
+        label="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
         fullWidth
         margin="normal"
         required
+        disabled={isSubmitting}
       />
       <TextField
         label="Password"
         type="password"
         value={password}
-        onChange={e => setPassword(e.target.value)}
+        onChange={(e) => setPassword(e.target.value)}
         fullWidth
         margin="normal"
         required
+        disabled={isSubmitting}
       />
-      <Button type="submit" variant="contained" fullWidth disabled={isSubmitting}>
-        {isSubmitting ? 'Logging in...' : 'Login'}
+      <Button 
+        type="submit" 
+        variant="contained" 
+        fullWidth 
+        sx={{ mt: 2 }} 
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? (
+          <CircularProgress size={24} color="inherit" />
+        ) : (
+          'Login'
+        )}
       </Button>
     </Box>
   );

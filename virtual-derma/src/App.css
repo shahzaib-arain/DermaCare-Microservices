@@ -1,5 +1,19 @@
+/* Apply consistent box-sizing */
+* {
+  box-sizing: border-box;
+}
+
+/* Prevent horizontal overflow on entire app */
+body, html, #root {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+}
+
 .App {
   text-align: center;
+  overflow-x: hidden; /* Ensures no overflow from this component */
 }
 
 .App-logo {
@@ -22,6 +36,7 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  overflow-x: hidden; /* Prevent header overflow */
 }
 
 .App-link {
