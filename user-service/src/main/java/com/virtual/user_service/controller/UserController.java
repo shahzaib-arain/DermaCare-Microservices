@@ -3,6 +3,7 @@ package com.virtual.user_service.controller;
 
 import com.virtual.user_service.dto.DoctorVerificationDTO;
 import com.virtual.user_service.dto.UserResponseDTO;
+import com.virtual.user_service.repository.DoctorVerificationRepository;
 import com.virtual.user_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final DoctorVerificationRepository doctorVerificationRepository;
+
 
     @GetMapping("/profile")
     public ResponseEntity<UserResponseDTO> getPatientProfile() {
@@ -24,6 +27,8 @@ public class UserController {
     public ResponseEntity<List<DoctorVerificationDTO>> getAllDoctors() {
         return ResponseEntity.ok(userService.getAllVerifiedDoctors());
     }
+
+
 
 
 
