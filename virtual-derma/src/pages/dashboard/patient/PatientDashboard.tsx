@@ -7,6 +7,7 @@ import { AppointmentDTO } from '../../../types/appointmentTypes';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import HealingIcon from '@mui/icons-material/Healing';
 import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
+import { PatientProfile } from './PatientProfile'; 
 
 export const PatientDashboard = () => {
   const { user } = useAuth();
@@ -34,7 +35,7 @@ export const PatientDashboard = () => {
         Welcome back! Here's your overview
       </Typography>
 
-      {/* Replace Grid container with flex Box */}
+      {/* Stats Cards Section */}
       <Box 
         sx={{ 
           display: 'flex', 
@@ -44,7 +45,6 @@ export const PatientDashboard = () => {
           justifyContent: 'space-between'
         }}
       >
-        {/* Each StatsCard wrapped in Box with responsive width */}
         <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Upcoming Appointments"
@@ -71,11 +71,13 @@ export const PatientDashboard = () => {
         </Box>
       </Box>
 
+      {/* Quick Actions Section */}
       <Box sx={{ 
         backgroundColor: 'background.paper',
         p: 3,
         borderRadius: 2,
-        boxShadow: 1
+        boxShadow: 1,
+        mb: 4
       }}>
         <Typography variant="h6" gutterBottom>
           Quick Actions
@@ -92,7 +94,10 @@ export const PatientDashboard = () => {
               backgroundColor: 'action.hover',
               cursor: 'pointer'
             }
-          }}>
+          }}
+                    onClick={()=> console.log("Book New...")}
+
+          >
             <Typography variant="body1">Book New Appointment</Typography>
           </Box>
           <Box sx={{
@@ -111,6 +116,9 @@ export const PatientDashboard = () => {
           </Box>
         </Box>
       </Box>
+
+      {/* 👇 Patient Profile Section */}
+      <PatientProfile />
     </Box>
   );
 };

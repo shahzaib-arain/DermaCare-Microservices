@@ -1,4 +1,15 @@
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton
+} from '@mui/material';
 import { useApi } from '../../../hooks/useApi';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useEffect } from 'react';
@@ -12,9 +23,9 @@ export const MyAppointments = () => {
   const { data: appointments, fetchData: fetchAppointments } = useApi<AppointmentDTO[]>();
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.email) {
       fetchAppointments({
-        url: `/api/appointment/patient/${user.id}`,
+        url: `/api/appointment/patient/${user.email}`,
         method: 'get'
       });
     }
@@ -46,17 +57,23 @@ export const MyAppointments = () => {
                 <TableCell>{formatDateTime(appointment.appointmentTime)}</TableCell>
                 <TableCell>{appointment.reason}</TableCell>
                 <TableCell>
-                  <Box sx={{
-                    display: 'inline-block',
-                    px: 1,
-                    py: 0.5,
-                    borderRadius: 1,
-                    backgroundColor: 
-                      appointment.status === 'BOOKED' ? 'info.light' :
-                      appointment.status === 'COMPLETED' ? 'success.light' :
-                      appointment.status === 'CANCELLED' ? 'error.light' : 'warning.light',
-                    color: 'common.white'
-                  }}>
+                  <Box
+                    sx={{
+                      display: 'inline-block',
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: 1,
+                      backgroundColor:
+                        appointment.status === 'BOOKED'
+                          ? 'info.light'
+                          : appointment.status === 'COMPLETED'
+                          ? 'success.light'
+                          : appointment.status === 'CANCELLED'
+                          ? 'error.light'
+                          : 'warning.light',
+                      color: 'common.white'
+                    }}
+                  >
                     {appointment.status}
                   </Box>
                 </TableCell>

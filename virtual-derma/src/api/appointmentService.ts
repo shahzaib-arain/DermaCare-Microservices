@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { AppointmentDTO } from '../types/appointmentTypes';
 
-const API_BASE_URL = '/api/appointment'; // Matches gateway route exactly
+const API_BASE_URL = 'http://localhost:9092/dermacare-service/api/appointment'; // Updated backend URL
+
 const getAuthConfig = (token: string) => ({
   headers: { Authorization: `Bearer ${token}` },
 });
@@ -10,20 +11,22 @@ export const bookAppointment = async (
   appointmentData: Omit<AppointmentDTO, 'id' | 'status' | 'createdAt'>,
   token: string
 ): Promise<AppointmentDTO> => {
+    console.log('Booking appointment...', appointmentData, token); // 👈 Add this
   const response = await axios.post(API_BASE_URL, appointmentData, getAuthConfig(token));
   return response.data;
 };
 
 export const getPatientAppointments = async (
-  patientId: string,
+  patientEmail: string,
   token: string
 ): Promise<AppointmentDTO[]> => {
   const response = await axios.get(
-    `${API_BASE_URL}/patient/${patientId}`,
+    `${API_BASE_URL}/patient/${patientEmail}`,
     getAuthConfig(token)
   );
   return response.data;
 };
+
 
 export const getDoctorAppointments = async (
   doctorId: string,

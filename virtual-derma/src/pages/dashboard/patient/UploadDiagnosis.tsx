@@ -23,13 +23,14 @@ export const UploadDiagnosis = () => {
   });
 
   const onSubmit = async (data: FormData) => {
-    if (!user?.id || !file) {
+    if (!user?.token || !file) {
       alert('Please upload an image file');
       return;
     }
     
     try {
-      await uploadImage(file, data.notes, user.id);
+      // Pass the JWT token here (user.token)
+      await uploadImage(file, data.notes, user.token);
       navigate('/patient/diagnosis');
     } catch (error) {
       console.error('Upload failed:', error);

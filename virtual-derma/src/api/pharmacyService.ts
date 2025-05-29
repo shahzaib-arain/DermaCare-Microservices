@@ -3,12 +3,12 @@ import axios from 'axios';
 import {
   PrescriptionDTO,
   MedicineDTO,
-  PrescriptionItemDTO
+  PrescriptionItemDTO,
 } from '../types/pharmacyTypes';
 
-const API_BASE_URL = '/api/pharmacy'; // Matches gateway route exactly
+const API_BASE_URL = 'http://localhost:9092/dermacare-service/api/pharmacy';
 const getAuthConfig = (token: string) => ({
-  headers: { Authorization: `Bearer ${token}` }
+  headers: { Authorization: `Bearer ${token}` },
 });
 
 export const createPrescription = async (
@@ -57,7 +57,9 @@ export const orderMedicines = async (
   return response.data;
 };
 
-export const getAllMedicines = async (token?: string): Promise<MedicineDTO[]> => {
+export const getAllMedicines = async (
+  token?: string
+): Promise<MedicineDTO[]> => {
   const config = token ? getAuthConfig(token) : {};
   const response = await axios.get(`${API_BASE_URL}/medicines`, config);
   return response.data;

@@ -1,5 +1,6 @@
 // src/types/pharmacyTypes.ts
 export interface MedicineDTO {
+  type: string;
   id: string;  // Changed from medicineId to id for consistency
   name: string;
   dosage: string;

@@ -1,5 +1,5 @@
 import { Box, Typography, TextField, Button, MenuItem } from '@mui/material';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { appointmentSchema } from '../../../utils/validationSchemas';
 import { useApi } from '../../../hooks/useApi';
@@ -7,10 +7,12 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { DoctorVerificationDTO } from '../../../types/userTypes';
 import { bookAppointment } from '../../../api/appointmentService';
 import { useNavigate } from 'react-router-dom';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { DatePicker, TimePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
+
 
 interface FormData {
   doctorId: string;
@@ -28,21 +30,24 @@ interface AppointmentRequest {
 }
 
 export const BookAppointment = () => {
+    console.log('✅ Component loaded'); // This must print when page loads
   const { user } = useAuth();
   const { data: doctors, fetchData: fetchDoctors } = useApi<DoctorVerificationDTO[]>();
   const navigate = useNavigate();
+      console.log("Form submitted"); // 👈 DO YOU SEE THIS?
 
-  const { 
-    register, 
-    handleSubmit, 
-    formState: { errors }, 
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
     setValue,
     control
   } = useForm<FormData>({
-    resolver: yupResolver(appointmentSchema as any), // Temporary workaround
+    resolver: yupResolver(appointmentSchema as any),
     defaultValues: {
       date: new Date(),
-      time: new Date(new Date().setHours(9, 0, 0, 0)) // Default to 9:00 AM
+      time: new Date(new Date().setHours(9, 0, 0, 0)) // Default 9:00 AM
     }
   });
 
@@ -71,7 +76,7 @@ export const BookAppointment = () => {
       appointmentTime: appointmentTime.toISOString(),
       reason: data.reason,
       patientId: user.id,
-      durationMinutes: 30 // Default duration
+      durationMinutes: 30
     };
 
     try {
@@ -79,97 +84,94 @@ export const BookAppointment = () => {
       navigate('/patient/appointments', { state: { success: true } });
     } catch (error) {
       console.error('Booking failed:', error);
-      // Optionally show error to user
     }
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Book Appointment
-      </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Schedule a virtual consultation with our specialists
-      </Typography>
-
-      <Box 
-        component="form" 
-        onSubmit={handleSubmit(onSubmit)} 
-        sx={{ 
-          maxWidth: 600,
-          '& .MuiTextField-root': { mb: 2 }
-        }}
-      >
-        {/* Doctor Select */}
-        <TextField
-          select
-          label="Select Doctor"
-          fullWidth
-          variant="outlined"
-          {...register('doctorId')}
-          error={!!errors.doctorId}
-          helperText={errors.doctorId?.message}
-        >
-          {doctors?.map((doctor) => (
-            <MenuItem key={doctor.doctorId} value={doctor.doctorId}>
-              {doctor.fullName} - {doctor.specialization}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        {/* Date & Time Pickers */}
-        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-          <DatePicker
-            label="Appointment Date"
-            minDate={dayjs()}
-            onChange={(date) => setValue('date', date?.toDate() || new Date())}
-            slotProps={{
-              textField: {
-                fullWidth: true,
-                error: !!errors.date,
-                helperText: errors.date?.message,
-              }
-            }}
-          />
-
-          <TimePicker
-            label="Appointment Time"
-            ampm={false}
-            minutesStep={15}
-            onChange={(time) => setValue('time', time?.toDate() || new Date())}
-            slotProps={{
-              textField: {
-                fullWidth: true,
-                error: !!errors.time,
-                helperText: errors.time?.message,
-              }
-            }}
-          />
-        </Box>
-
-        {/* Reason for Visit */}
-        <TextField
-          label="Reason for Visit"
-          multiline
-          rows={4}
-          fullWidth
-          variant="outlined"
-          {...register('reason')}
-          error={!!errors.reason}
-          helperText={errors.reason?.message}
-        />
-
-        {/* Submit Button */}
-        <Button 
-          type="submit" 
-          variant="contained" 
-          size="large" 
-          fullWidth
-          sx={{ mt: 2 }}
-        >
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h4" gutterBottom>
           Book Appointment
-        </Button>
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+          Schedule a virtual consultation with our specialists
+        </Typography>
+
+        <Box
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          sx={{
+            maxWidth: 600,
+            '& .MuiTextField-root': { mb: 2 }
+          }}
+        >
+          {/* Doctor Select */}
+          <TextField
+            select
+            label="Select Doctor"
+            fullWidth
+            variant="outlined"
+            {...register('doctorId')}
+            error={!!errors.doctorId}
+            helperText={errors.doctorId?.message}
+          >
+            {doctors && doctors.length > 0 ? (
+              doctors.map((doc, index) => (
+                <MenuItem
+                  key={doc.id != null ? doc.id.toString() : `index-${index}`}
+                  value={doc.id != null ? doc.id.toString() : `doc-${index}`}
+                >
+                  {doc.fullName}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>No doctors available</MenuItem>
+            )}
+          </TextField>
+
+          {/* Reason */}
+          <TextField
+            label="Reason for Appointment"
+            fullWidth
+            variant="outlined"
+            {...register('reason')}
+            error={!!errors.reason}
+            helperText={errors.reason?.message}
+          />
+
+          {/* Date Picker */}
+          <Controller
+            name="date"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                label="Select Date"
+                value={dayjs(field.value)}
+                onChange={(newValue) => field.onChange(newValue?.toDate())}
+              />
+            )}
+          />
+
+          {/* Time Picker */}
+          <Controller
+            name="time"
+            control={control}
+            render={({ field }) => (
+              <TimePicker
+                label="Select Time"
+                value={dayjs(field.value)}
+                onChange={(newValue) => field.onChange(newValue?.toDate())}
+              />
+            )}
+          />
+
+          <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}
+          onClick={()=> console.log("Book Appointment clicked...")}
+          >
+            Book Appointment
+          </Button>
+        </Box>
       </Box>
-    </Box>
+    </LocalizationProvider>
   );
 };

@@ -7,6 +7,7 @@ import { AppointmentDTO } from '../../../types/appointmentTypes';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import HealingIcon from '@mui/icons-material/Healing';
 import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
+import { DoctorProfile } from './DoctorProfile'; 
 
 export const DoctorDashboard = () => {
   const { user } = useAuth();
@@ -37,10 +38,9 @@ export const DoctorDashboard = () => {
         Doctor Dashboard
       </Typography>
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 4 }}>
-        Welcome back, Dr. {user?.email?.split(' ')[1]}
+        Welcome back, Dr. {user?.email?.split('@')[0]}
       </Typography>
 
-      {/* Replace Grid with Flexbox */}
       <Box 
         sx={{ 
           display: 'flex', 
@@ -76,11 +76,15 @@ export const DoctorDashboard = () => {
         </Box>
       </Box>
 
+      {/* ✅ Add DoctorProfile component here */}
+      <DoctorProfile />
+
       <Box sx={{ 
         backgroundColor: 'background.paper',
         p: 3,
         borderRadius: 2,
-        boxShadow: 1
+        boxShadow: 1,
+        mt: 4
       }}>
         <Typography variant="h6" gutterBottom>
           Today's Schedule

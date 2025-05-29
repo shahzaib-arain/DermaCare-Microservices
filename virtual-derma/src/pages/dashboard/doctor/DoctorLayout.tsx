@@ -1,24 +1,17 @@
+// Create a new file: src/layouts/doctor/DoctorLayout.tsx
 import { Outlet } from 'react-router-dom';
-import {
-  Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText
-} from '@mui/material';
+import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import { useAuth } from '../../../contexts/AuthContext';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import EventIcon from '@mui/icons-material/Event';
 import HealingIcon from '@mui/icons-material/Healing';
 import MedicationIcon from '@mui/icons-material/Medication';
-import UploadIcon from '@mui/icons-material/Upload';
+import PeopleIcon from '@mui/icons-material/People';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 const drawerWidth = 240;
 
-export const PatientLayout = () => {
+export const DoctorLayout = () => {
   const { logout } = useAuth();
 
   return (
@@ -37,50 +30,45 @@ export const PatientLayout = () => {
       >
         <List>
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/patient/dashboard">
+            <ListItemButton component="a" href="/doctor/dashboard">
               <ListItemIcon>
                 <DashboardIcon />
               </ListItemIcon>
               <ListItemText primary="Dashboard" />
             </ListItemButton>
           </ListItem>
-
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/patient/appointments">
+            <ListItemButton component="a" href="/doctor/appointments">
               <ListItemIcon>
                 <EventIcon />
               </ListItemIcon>
               <ListItemText primary="Appointments" />
             </ListItemButton>
           </ListItem>
-
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/patient/book-appointment">
+            <ListItemButton component="a" href="/doctor/diagnoses">
               <ListItemIcon>
                 <HealingIcon />
               </ListItemIcon>
-              <ListItemText primary="Book Appointment" />
+              <ListItemText primary="Diagnoses" />
             </ListItemButton>
           </ListItem>
-
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/patient/prescriptions">
+            <ListItemButton component="a" href="/doctor/prescriptions">
               <ListItemIcon>
                 <MedicationIcon />
               </ListItemIcon>
               <ListItemText primary="Prescriptions" />
             </ListItemButton>
           </ListItem>
-
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/patient/upload-diagnosis">
+            <ListItemButton component="a" href="/doctor/patients">
               <ListItemIcon>
-                <UploadIcon />
+                <PeopleIcon />
               </ListItemIcon>
-              <ListItemText primary="Upload Diagnosis" />
+              <ListItemText primary="Patients" />
             </ListItemButton>
           </ListItem>
-
           <ListItem disablePadding>
             <ListItemButton onClick={logout}>
               <ListItemIcon>
@@ -91,7 +79,6 @@ export const PatientLayout = () => {
           </ListItem>
         </List>
       </Drawer>
-
       <Box
         component="main"
         sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}

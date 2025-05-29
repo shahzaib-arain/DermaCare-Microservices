@@ -42,6 +42,7 @@ const diseases: Disease[] = [
 
 const featuredDoctors: DoctorWithPhoto[] = [
   {
+    id: "1", // ✅ Add this line
     doctorId: "1",
     fullName: "Dr. John Smith",
     email: "john.smith@example.com",
@@ -52,6 +53,7 @@ const featuredDoctors: DoctorWithPhoto[] = [
     photoUrl: "/images/doctors/1.jpg",
   },
   {
+    id: "2", // ✅ Add this line
     doctorId: "2",
     fullName: "Dr. Sarah Johnson",
     email: "sarah.johnson@example.com",
@@ -62,6 +64,7 @@ const featuredDoctors: DoctorWithPhoto[] = [
     photoUrl: "/images/doctors/2.jpg",
   },
   {
+    id: "3", // ✅ Add this line
     doctorId: "3",
     fullName: "Dr. Michael Chen",
     email: "michael.chen@example.com",
@@ -72,6 +75,7 @@ const featuredDoctors: DoctorWithPhoto[] = [
     photoUrl: "/images/doctors/3.jpg",
   },
 ];
+
 
 // AnimatedGridItem component
 const AnimatedGridItem = ({ children, ...props }: any) => (

@@ -1,43 +1,68 @@
-// src/pages/dashboard/patient/MyPrescriptions.tsx
-import { 
-  Box, 
-  Typography, 
-  Accordion, 
-  AccordionSummary, 
-  AccordionDetails, 
-  List, 
-  ListItem, 
-  ListItemText, 
-  Button 
+import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  Typography,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+  Divider,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useApi } from '../../../hooks/useApi';
 import { useAuth } from '../../../contexts/AuthContext';
-import { useEffect, useState } from 'react';
-import { PrescriptionDTO, PrescriptionItemDTO } from '../../../types/pharmacyTypes';
+import { PrescriptionDTO, PrescriptionItemDTO, MedicineDTO } from '../../../types/pharmacyTypes'; // Assuming MedicineDTO exists
 import { formatDate } from '../../../utils/dateUtils';
+import { getAllMedicines, orderMedicines } from '../../../api/pharmacyService';
 
 export const MyPrescriptions = () => {
   const { user } = useAuth();
+  const token = user?.token;
+
   const { data: prescriptions, fetchData: fetchPrescriptions } = useApi<PrescriptionDTO[]>();
+
+  // New state to store all medicines
+  const [medicines, setMedicines] = useState<MedicineDTO[]>([]);
+
   const [expanded, setExpanded] = useState<string | false>(false);
 
-  const handleChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+  useEffect(() => {
+    if (user?.id && token) {
+      fetchPrescriptions({
+        url: `http://localhost:9092/dermacare-service/api/pharmacy/prescription/patient/${user.id}`,
+        method: 'get',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Fetch all medicines and store them in state
+      getAllMedicines(token).then((meds) => {
+        setMedicines(meds);
+        console.log('Available Medicines:', meds);
+      }).catch((error) => {
+        console.error('Failed to fetch medicines:', error);
+      });
+    }
+  }, [user, token, fetchPrescriptions]);
+
+  const handleChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false);
   };
 
-  useEffect(() => {
-    if (user?.id) {
-      fetchPrescriptions({
-        url: `/api/pharmacy/prescription/patient/${user.id}`,
-        method: 'get',
-      });
+  const handleOrderMedicines = async (prescriptionId: string) => {
+    if (!token) return;
+    try {
+      const result = await orderMedicines(prescriptionId, token);
+      console.log(`Medicines ordered successfully: ${result}`);
+      alert('Medicines ordered successfully!');
+    } catch (error) {
+      console.error('Error ordering medicines:', error);
+      alert('Failed to order medicines.');
     }
-  }, [user, fetchPrescriptions]);
-
-  const handleOrderMedicines = (prescriptionId: string) => {
-    // Implement order functionality here
-    console.log(`Ordering medicines for prescription ${prescriptionId}`);
   };
 
   return (
@@ -49,6 +74,32 @@ export const MyPrescriptions = () => {
         View your current and past medication prescriptions
       </Typography>
 
+      {/* New Section: List all available medicines */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          All Available Medicines
+        </Typography>
+        {medicines.length === 0 ? (
+          <Typography variant="body2" color="text.secondary">
+            No medicines available.
+          </Typography>
+        ) : (
+          <List dense sx={{ maxHeight: 200, overflowY: 'auto', bgcolor: '#f9f9f9' }}>
+            {medicines.map((med) => (
+              <ListItem key={med.id}>
+                <ListItemText
+                  primary={med.name}
+                  secondary={med.description || `Type: ${med.type || 'N/A'}`}
+                />
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </Box>
+
+      <Divider sx={{ mb: 4 }} />
+
+      {/* Existing Prescriptions List */}
       {prescriptions?.length === 0 && (
         <Typography variant="body1" sx={{ mt: 2 }}>
           You don't have any prescriptions yet.
@@ -56,8 +107,8 @@ export const MyPrescriptions = () => {
       )}
 
       {prescriptions?.map((prescription) => (
-        <Accordion 
-          key={prescription.id} 
+        <Accordion
+          key={prescription.id}
           expanded={expanded === prescription.id}
           onChange={handleChange(prescription.id)}
           sx={{ mb: 2 }}
@@ -84,14 +135,16 @@ export const MyPrescriptions = () => {
                 <ListItem key={index}>
                   <ListItemText
                     primary={`${item.medicineName || 'Medicine'} - ${item.dosage}`}
-                    secondary={`Quantity: ${item.quantity}${item.instructions ? ` • ${item.instructions}` : ''}`}
+                    secondary={`Quantity: ${item.quantity}${
+                      item.instructions ? ` • ${item.instructions}` : ''
+                    }`}
                   />
                 </ListItem>
               ))}
             </List>
-            <Button 
-              variant="contained" 
-              sx={{ mt: 2 }} 
+            <Button
+              variant="contained"
+              sx={{ mt: 2 }}
               disabled={prescription.status !== 'ACTIVE'}
               onClick={() => handleOrderMedicines(prescription.id)}
             >

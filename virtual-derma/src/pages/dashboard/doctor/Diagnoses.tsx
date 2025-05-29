@@ -3,16 +3,28 @@ import { useApi } from '../../../hooks/useApi';
 import { useEffect } from 'react';
 import { DiagnosisDTO } from '../../../types/diagnosisTypes';
 import { formatDate } from '../../../utils/dateUtils';
+import { useAuth } from '../../../contexts/AuthContext';
+import { Link as RouterLink } from 'react-router-dom';
 
 export const Diagnoses = () => {
-  const { data: diagnoses, fetchData: fetchDiagnoses } = useApi<DiagnosisDTO[]>();
+  const { user } = useAuth();
+  const { data: diagnoses, fetchData: fetchDiagnoses, loading, error } = useApi<DiagnosisDTO[]>();
 
   useEffect(() => {
-    fetchDiagnoses({
-      url: '/api/diagnosis',
-      method: 'get'
-    });
-  }, [fetchDiagnoses]);
+    if (user?.token) {
+      fetchDiagnoses({
+        url: '/api/diagnosis',
+        method: 'get',
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+    }
+  }, [fetchDiagnoses, user?.token]);
+
+  if (loading) return <Typography>Loading diagnoses...</Typography>;
+  if (error) return <Typography color="error">Failed to load diagnoses.</Typography>;
+  if (!diagnoses || diagnoses.length === 0) return <Typography>No diagnoses found.</Typography>;
 
   return (
     <Box>
@@ -34,7 +46,7 @@ export const Diagnoses = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {diagnoses?.filter(d => d.status === 'PENDING').map((diagnosis) => (
+            {diagnoses.filter(d => d.status === 'PENDING').map((diagnosis) => (
               <TableRow key={diagnosis.id}>
                 <TableCell>{diagnosis.patientName}</TableCell>
                 <TableCell>{formatDate(diagnosis.createdAt)}</TableCell>
@@ -54,7 +66,8 @@ export const Diagnoses = () => {
                   <Button 
                     variant="contained" 
                     size="small"
-                    href={`/doctor/diagnosis/${diagnosis.id}`}
+                    component={RouterLink}
+                    to={`/doctor/diagnosis/${diagnosis.id}`}
                   >
                     Analyze
                   </Button>

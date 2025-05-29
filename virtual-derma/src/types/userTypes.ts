@@ -1,3 +1,4 @@
+import { Key } from "react";
 export enum Role {
   ADMIN = 'ADMIN',
   DOCTOR = 'DOCTOR',
@@ -18,6 +19,7 @@ export interface UserResponseDTO {
 }
 
 export interface DoctorVerificationDTO {
+  id: Key | null | undefined;
   doctorId: string;
   fullName: string;
   email: string;

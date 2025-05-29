@@ -2,7 +2,7 @@
   "name": "virtual-derma",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:9092", 
+  "proxy": "http://localhost:9092",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -21,6 +21,7 @@
     "@types/react-dom": "^19.1.5",
     "@types/react-slick": "^0.23.13",
     "axios": "^1.9.0",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "formik": "^2.4.6",
     "framer-motion": "^12.12.1",
