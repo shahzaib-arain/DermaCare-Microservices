@@ -165,9 +165,7 @@ export const BookAppointment = () => {
             )}
           />
 
-          <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}
-          onClick={()=> console.log("Book Appointment clicked...")}
-          >
+          <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}          >
             Book Appointment
           </Button>
         </Box>

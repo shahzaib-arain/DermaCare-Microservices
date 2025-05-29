@@ -8,6 +8,7 @@ export const PatientProfile = () => {
 const { user } = useAuth();
 const token = user?.token;
   const [profile, setProfile] = useState<UserResponseDTO | null>(null);
+  console.log("React_");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
