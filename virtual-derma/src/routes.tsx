@@ -19,6 +19,7 @@ import { UploadDiagnosis } from './pages/dashboard/patient/UploadDiagnosis';
 import { MyAppointments } from './pages/dashboard/patient/MyAppointments';
 import { MyPrescriptions } from './pages/dashboard/patient/MyPrescriptions';
 import { PatientProfile } from './pages/dashboard/patient/PatientProfile';
+import { PatientDiagnosesPage } from './pages/dashboard/patient/PatientDiagnosesPage';
 
 // Doctor components
 import { DoctorLayout } from './pages/dashboard/doctor/DoctorLayout';
@@ -70,7 +71,7 @@ export const AppRoutes = () => {
         <Route path="upload-diagnosis" element={<UploadDiagnosis />} />
         <Route path="profile" element={<PatientProfile />} />
       </Route>
-
+UploadDiagnosis
       {/* Doctor Routes */}
       <Route 
         path="/doctor" 

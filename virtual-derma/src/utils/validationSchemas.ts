@@ -28,6 +28,10 @@ export const appointmentSchema = yup.object({
     .required('Appointment time is required')
 });
 
-export const diagnosisSchema = yup.object().shape({
-  notes: yup.string().required('Notes are required'),
+export const diagnosisSchema = yup.object({
+  file: yup
+    .mixed<File>()
+    .required('File is required')
+    .test('is-file', 'Please upload a file', (value) => value instanceof File),
+  notes: yup.string().required('Notes are required')
 });
