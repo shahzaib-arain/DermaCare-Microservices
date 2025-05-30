@@ -1,4 +1,3 @@
-// src/pages/dashboard/admin/ManageMedicines.tsx
 import {
   Box,
   Typography,
@@ -10,41 +9,49 @@ import {
   TableRow,
   Paper,
   Button,
-  IconButton
+  IconButton,
 } from '@mui/material';
-import { useApi } from '../../../hooks/useApi';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { MedicineDTO } from '../../../types/pharmacyTypes';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
+import apiClient from '../../../api/apiClient';
+import { useAuth } from '../../../contexts/AuthContext';
 
 export const ManageMedicines = () => {
-  const { data: medicines, fetchData: fetchMedicines } = useApi<MedicineDTO[]>();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const [medicines, setMedicines] = useState<MedicineDTO[]>([]);
 
-  useEffect(() => {
-    fetchMedicines({
-      url: '/api/pharmacy/medicines',
-      method: 'get'
-    });
-  }, [fetchMedicines]);
+  const fetchMedicines = async () => {
+    try {
+      const response = await apiClient.get<MedicineDTO[]>('/api/pharmacy/medicines', {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+      setMedicines(response.data);
+    } catch (error) {
+      console.error('Failed to fetch medicines:', error);
+    }
+  };
 
   const handleDeleteClick = async (id: string) => {
     try {
-      await fetchMedicines({
-        url: `/api/pharmacy/medicines/${id}`,
-        method: 'delete'
+      await apiClient.delete(`/api/pharmacy/medicines/${id}`, {
+        headers: { Authorization: `Bearer ${user?.token}` },
       });
-      fetchMedicines({
-        url: '/api/pharmacy/medicines',
-        method: 'get'
-      });
+      fetchMedicines();
     } catch (error) {
       console.error('Failed to delete medicine:', error);
     }
   };
+
+  useEffect(() => {
+    if (user?.token) {
+      fetchMedicines();
+    }
+  }, [user]);
 
   return (
     <Box>
@@ -55,7 +62,7 @@ export const ManageMedicines = () => {
         View and manage the pharmacy inventory
       </Typography>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <Button 
+        <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => navigate('/admin/medicines/add')}
@@ -77,7 +84,7 @@ export const ManageMedicines = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {medicines?.map((medicine) => (
+            {medicines.map((medicine) => (
               <TableRow key={medicine.id}>
                 <TableCell>{medicine.name}</TableCell>
                 <TableCell>{medicine.description}</TableCell>
@@ -89,7 +96,8 @@ export const ManageMedicines = () => {
                   <IconButton
                     color="primary"
                     onClick={() => navigate(`/admin/medicines/edit/${medicine.id}`)}
-                    size="large">
+                    size="large"
+                  >
                     <EditIcon />
                   </IconButton>
                   <IconButton onClick={() => handleDeleteClick(medicine.id)} size="large">

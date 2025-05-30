@@ -2,17 +2,15 @@ import { Box, Typography, TextField, Button, MenuItem } from '@mui/material';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { appointmentSchema } from '../../../utils/validationSchemas';
-import { useApi } from '../../../hooks/useApi';
 import { useAuth } from '../../../contexts/AuthContext';
 import { DoctorVerificationDTO } from '../../../types/userTypes';
-import { bookAppointment } from '../../../api/appointmentService';
 import { useNavigate } from 'react-router-dom';
 import { DatePicker, TimePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { useEffect } from 'react';
-
+import { useEffect, useState } from 'react';
+import apiClient from '../../../api/apiClient';
 
 interface FormData {
   doctorId: string;
@@ -21,27 +19,15 @@ interface FormData {
   reason: string;
 }
 
-interface AppointmentRequest {
-  doctorId: string;
-  appointmentTime: string;
-  reason: string;
-  patientId: string;
-  durationMinutes: number;
-}
-
 export const BookAppointment = () => {
-    console.log('✅ Component loaded'); // This must print when page loads
   const { user } = useAuth();
-  const { data: doctors, fetchData: fetchDoctors } = useApi<DoctorVerificationDTO[]>();
+  const [doctors, setDoctors] = useState<DoctorVerificationDTO[]>([]);
   const navigate = useNavigate();
-      console.log("Form submitted"); // 👈 DO YOU SEE THIS?
-
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
     control
   } = useForm<FormData>({
     resolver: yupResolver(appointmentSchema as any),
@@ -52,14 +38,15 @@ export const BookAppointment = () => {
   });
 
   useEffect(() => {
-    fetchDoctors({
-      url: '/api/patient/doctors',
-      method: 'get',
-      headers: {
-        Authorization: `Bearer ${user?.token}`
-      }
-    });
-  }, [fetchDoctors, user?.token]);
+    if (user?.token) {
+      apiClient
+        .get<DoctorVerificationDTO[]>('/api/patient/doctors', {
+          headers: { Authorization: `Bearer ${user.token}` }
+        })
+        .then((response) => setDoctors(response.data))
+        .catch((error) => console.error('Failed to fetch doctors:', error));
+    }
+  }, [user?.token]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     if (!user?.id || !user.token) {
@@ -71,7 +58,7 @@ export const BookAppointment = () => {
     appointmentTime.setHours(data.time.getHours());
     appointmentTime.setMinutes(data.time.getMinutes());
 
-    const appointmentRequest: AppointmentRequest = {
+    const appointmentRequest = {
       doctorId: data.doctorId,
       appointmentTime: appointmentTime.toISOString(),
       reason: data.reason,
@@ -80,7 +67,9 @@ export const BookAppointment = () => {
     };
 
     try {
-      await bookAppointment(appointmentRequest, user.token);
+      await apiClient.post('/api/appointment/book', appointmentRequest, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
       navigate('/patient/appointments', { state: { success: true } });
     } catch (error) {
       console.error('Booking failed:', error);
@@ -115,7 +104,7 @@ export const BookAppointment = () => {
             error={!!errors.doctorId}
             helperText={errors.doctorId?.message}
           >
-            {doctors && doctors.length > 0 ? (
+            {doctors.length > 0 ? (
               doctors.map((doc, index) => (
                 <MenuItem
                   key={doc.id != null ? doc.id.toString() : `index-${index}`}
@@ -165,7 +154,7 @@ export const BookAppointment = () => {
             )}
           />
 
-          <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}          >
+          <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}>
             Book Appointment
           </Button>
         </Box>

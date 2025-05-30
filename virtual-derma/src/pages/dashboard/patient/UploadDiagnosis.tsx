@@ -4,33 +4,36 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { diagnosisSchema } from '../../../utils/validationSchemas';
 import { ImageUploader } from '../../../components/ui/ImageUploader';
 import { useState } from 'react';
-import { uploadImage } from '../../../api/diagnosisService';
-import { useAuth } from '../../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import apiClient from '../../../api/apiClient';
 
 interface FormData {
   notes: string;
-  // removed file here
 }
 
 export const UploadDiagnosis = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
+  const navigate = useNavigate();
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: yupResolver(diagnosisSchema)
   });
 
   const onSubmit = async (data: FormData) => {
-    if (!user?.token || !file) {
+    if (!file) {
       alert('Please upload an image file');
       return;
     }
-    
+
     try {
-      // Pass the JWT token here (user.token)
-      await uploadImage(file, data.notes, user.token);
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('notes', data.notes);
+
+      await apiClient.post('/diagnosis/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
       navigate('/patient/diagnosis');
     } catch (error) {
       console.error('Upload failed:', error);
@@ -39,9 +42,7 @@ export const UploadDiagnosis = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        Upload Diagnosis
-      </Typography>
+      <Typography variant="h4" gutterBottom>Upload Diagnosis</Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
         Submit images of your skin condition for expert evaluation
       </Typography>

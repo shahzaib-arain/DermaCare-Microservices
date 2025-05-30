@@ -1,31 +1,27 @@
 import { Box, Typography, Paper, CircularProgress } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { getDoctorProfile } from '../../../api/userService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { UserResponseDTO } from '../../../types/userTypes';
+import apiClient from '../../../api/apiClient';
 
 export const DoctorProfile = () => {
- const { user } = useAuth();
-const token = user?.token;
-
+  const { user } = useAuth();
   const [profile, setProfile] = useState<UserResponseDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        if (token) {
-          const data = await getDoctorProfile(token);
-          setProfile(data);
-        }
+        const { data } = await apiClient.get<UserResponseDTO>('/doctor/profile');
+        setProfile(data);
       } catch (err) {
         console.error('Error fetching doctor profile:', err);
       } finally {
         setLoading(false);
       }
     };
-    fetchProfile();
-  }, [token]);
+    if (user?.token) fetchProfile();
+  }, [user]);
 
   if (loading) return <CircularProgress />;
 

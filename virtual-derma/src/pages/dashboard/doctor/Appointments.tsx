@@ -1,22 +1,35 @@
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
-import { useApi } from '../../../hooks/useApi';
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+} from '@mui/material';
 import { useAuth } from '../../../contexts/AuthContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AppointmentDTO } from '../../../types/appointmentTypes';
 import { formatDateTime } from '../../../utils/dateUtils';
+import apiClient from '../../../api/apiClient';
 
 export const Appointments = () => {
   const { user } = useAuth();
-  const { data: appointments, fetchData: fetchAppointments } = useApi<AppointmentDTO[]>();
+  const [appointments, setAppointments] = useState<AppointmentDTO[]>([]);
 
   useEffect(() => {
-    if (user?.id) {
-      fetchAppointments({
-        url: `/api/appointment/doctor/${user.id}`,
-        method: 'get'
-      });
+    if (user?.id && user.token) {
+      apiClient
+        .get<AppointmentDTO[]>(`/api/appointment/doctor/${user.id}`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        })
+        .then((res) => setAppointments(res.data))
+        .catch((err) => console.error('Failed to fetch doctor appointments:', err));
     }
-  }, [user, fetchAppointments]);
+  }, [user]);
 
   return (
     <Box>
@@ -39,23 +52,29 @@ export const Appointments = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {appointments?.map((appointment) => (
+            {appointments.map((appointment) => (
               <TableRow key={appointment.id}>
                 <TableCell>{appointment.patientName}</TableCell>
                 <TableCell>{formatDateTime(appointment.appointmentTime)}</TableCell>
                 <TableCell>{appointment.reason}</TableCell>
                 <TableCell>
-                  <Box sx={{
-                    display: 'inline-block',
-                    px: 1,
-                    py: 0.5,
-                    borderRadius: 1,
-                    backgroundColor: 
-                      appointment.status === 'BOOKED' ? 'info.light' :
-                      appointment.status === 'COMPLETED' ? 'success.light' :
-                      appointment.status === 'CANCELLED' ? 'error.light' : 'warning.light',
-                    color: 'common.white'
-                  }}>
+                  <Box
+                    sx={{
+                      display: 'inline-block',
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: 1,
+                      backgroundColor:
+                        appointment.status === 'BOOKED'
+                          ? 'info.light'
+                          : appointment.status === 'COMPLETED'
+                          ? 'success.light'
+                          : appointment.status === 'CANCELLED'
+                          ? 'error.light'
+                          : 'warning.light',
+                      color: 'common.white',
+                    }}
+                  >
                     {appointment.status}
                   </Box>
                 </TableCell>

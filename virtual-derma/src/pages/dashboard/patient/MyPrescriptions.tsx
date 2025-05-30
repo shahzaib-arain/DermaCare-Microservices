@@ -1,63 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Box,
-  Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  List,
-  ListItem,
-  ListItemText,
-  Button,
-  Divider,
+  Box, Typography, Accordion, AccordionSummary, AccordionDetails,
+  List, ListItem, ListItemText, Button, Divider
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useApi } from '../../../hooks/useApi';
 import { useAuth } from '../../../contexts/AuthContext';
-import { PrescriptionDTO, PrescriptionItemDTO, MedicineDTO } from '../../../types/pharmacyTypes'; // Assuming MedicineDTO exists
+import { PrescriptionDTO, PrescriptionItemDTO, MedicineDTO } from '../../../types/pharmacyTypes';
 import { formatDate } from '../../../utils/dateUtils';
-import { getAllMedicines, orderMedicines } from '../../../api/pharmacyService';
+import apiClient from '../../../api/apiClient';
 
 export const MyPrescriptions = () => {
   const { user } = useAuth();
-  const token = user?.token;
-
   const { data: prescriptions, fetchData: fetchPrescriptions } = useApi<PrescriptionDTO[]>();
-
-  // New state to store all medicines
   const [medicines, setMedicines] = useState<MedicineDTO[]>([]);
-
   const [expanded, setExpanded] = useState<string | false>(false);
 
   useEffect(() => {
-    if (user?.id && token) {
+    if (user?.id) {
       fetchPrescriptions({
-        url: `http://localhost:9092/dermacare-service/api/pharmacy/prescription/patient/${user.id}`,
-        method: 'get',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        url: `/pharmacy/prescription/patient/${user.id}`,
+        method: 'get'
       });
 
-      // Fetch all medicines and store them in state
-      getAllMedicines(token).then((meds) => {
-        setMedicines(meds);
-        console.log('Available Medicines:', meds);
-      }).catch((error) => {
-        console.error('Failed to fetch medicines:', error);
-      });
+      apiClient.get<MedicineDTO[]>('/pharmacy/medicine')
+        .then(res => setMedicines(res.data))
+        .catch(err => console.error('Failed to fetch medicines:', err));
     }
-  }, [user, token, fetchPrescriptions]);
+  }, [user, fetchPrescriptions]);
 
-  const handleChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
+  const handleChange = (panel: string) => (_: React.SyntheticEvent, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false);
   };
 
   const handleOrderMedicines = async (prescriptionId: string) => {
-    if (!token) return;
     try {
-      const result = await orderMedicines(prescriptionId, token);
-      console.log(`Medicines ordered successfully: ${result}`);
+      await apiClient.post(`/pharmacy/prescription/order/${prescriptionId}`);
       alert('Medicines ordered successfully!');
     } catch (error) {
       console.error('Error ordering medicines:', error);
@@ -67,22 +45,15 @@ export const MyPrescriptions = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        My Prescriptions
-      </Typography>
+      <Typography variant="h4" gutterBottom>My Prescriptions</Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
         View your current and past medication prescriptions
       </Typography>
 
-      {/* New Section: List all available medicines */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" gutterBottom>
-          All Available Medicines
-        </Typography>
+        <Typography variant="h5" gutterBottom>All Available Medicines</Typography>
         {medicines.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            No medicines available.
-          </Typography>
+          <Typography variant="body2" color="text.secondary">No medicines available.</Typography>
         ) : (
           <List dense sx={{ maxHeight: 200, overflowY: 'auto', bgcolor: '#f9f9f9' }}>
             {medicines.map((med) => (
@@ -99,7 +70,6 @@ export const MyPrescriptions = () => {
 
       <Divider sx={{ mb: 4 }} />
 
-      {/* Existing Prescriptions List */}
       {prescriptions?.length === 0 && (
         <Typography variant="body1" sx={{ mt: 2 }}>
           You don't have any prescriptions yet.
@@ -135,9 +105,7 @@ export const MyPrescriptions = () => {
                 <ListItem key={index}>
                   <ListItemText
                     primary={`${item.medicineName || 'Medicine'} - ${item.dosage}`}
-                    secondary={`Quantity: ${item.quantity}${
-                      item.instructions ? ` • ${item.instructions}` : ''
-                    }`}
+                    secondary={`Quantity: ${item.quantity}${item.instructions ? ` • ${item.instructions}` : ''}`}
                   />
                 </ListItem>
               ))}

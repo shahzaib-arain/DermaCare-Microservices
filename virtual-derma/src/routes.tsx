@@ -9,6 +9,7 @@ import { RegisterDoctor } from './pages/auth/RegisterDoctor';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import NotFoundPage from './pages/404';
 import { Unauthorized } from './pages/Unauthorized';
+import { Role } from 'types/userTypes';
 
 // Patient components
 import { PatientLayout } from './pages/dashboard/patient/PatientLayout';
@@ -56,7 +57,7 @@ export const AppRoutes = () => {
       <Route 
         path="/patient" 
         element={
-          <ProtectedRoute requiredRole="PATIENT">
+          <ProtectedRoute requiredRole={Role.PATIENT}>
             <PatientLayout />
           </ProtectedRoute>
         }
@@ -67,14 +68,14 @@ export const AppRoutes = () => {
         <Route path="book-appointment" element={<BookAppointment />} />
         <Route path="prescriptions" element={<MyPrescriptions />} />
         <Route path="upload-diagnosis" element={<UploadDiagnosis />} />
-        <Route path="profile" element={<PatientProfile />} /> {/* 👈 Added */}
+        <Route path="profile" element={<PatientProfile />} />
       </Route>
 
       {/* Doctor Routes */}
       <Route 
         path="/doctor" 
         element={
-          <ProtectedRoute requiredRole="DOCTOR">
+          <ProtectedRoute requiredRole={Role.DOCTOR}>
             <DoctorLayout />
           </ProtectedRoute>
         }
@@ -84,14 +85,14 @@ export const AppRoutes = () => {
         <Route path="appointments" element={<Appointments />} />
         <Route path="diagnoses" element={<Diagnoses />} />
         <Route path="create-prescription" element={<CreatePrescription />} />
-        <Route path="profile" element={<DoctorProfile />} /> {/* 👈 Added */}
+        <Route path="profile" element={<DoctorProfile />} />
       </Route>
 
       {/* Admin Routes */}
       <Route 
         path="/admin" 
         element={
-          <ProtectedRoute requiredRole="ADMIN">
+          <ProtectedRoute requiredRole={Role.ADMIN}>
             <AdminLayout />
           </ProtectedRoute>
         }

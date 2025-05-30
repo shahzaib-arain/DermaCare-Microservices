@@ -8,9 +8,11 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import HealingIcon from '@mui/icons-material/Healing';
 import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
 import { PatientProfile } from './PatientProfile'; 
+import { useNavigate } from 'react-router-dom';
 
 export const PatientDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { data: appointments, fetchData: fetchAppointments } = useApi<AppointmentDTO[]>();
 
   useEffect(() => {
@@ -95,8 +97,7 @@ export const PatientDashboard = () => {
               cursor: 'pointer'
             }
           }}
-                    onClick={()=> console.log("Book New...")}
-
+            onClick={() => navigate('/patient/book-appointment')}
           >
             <Typography variant="body1">Book New Appointment</Typography>
           </Box>
@@ -111,7 +112,9 @@ export const PatientDashboard = () => {
               backgroundColor: 'action.hover',
               cursor: 'pointer'
             }
-          }}>
+          }}
+            onClick={() => navigate('/patient/upload-diagnosis')}
+          >
             <Typography variant="body1">Upload Diagnosis</Typography>
           </Box>
         </Box>

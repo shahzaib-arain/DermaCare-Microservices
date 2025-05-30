@@ -1,4 +1,3 @@
-// Create a new file: src/layouts/doctor/DoctorLayout.tsx
 import { Outlet } from 'react-router-dom';
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import { useAuth } from '../../../contexts/AuthContext';

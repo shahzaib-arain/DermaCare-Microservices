@@ -7,23 +7,19 @@ import GroupIcon from '@mui/icons-material/Group';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MedicationIcon from '@mui/icons-material/Medication';
 
-// Example interfaces — replace with your actual types
 interface DoctorDTO {
   id: string;
   name: string;
-  // other doctor properties
 }
 
 interface PatientDTO {
   id: string;
   name: string;
-  // other patient properties
 }
 
 interface MedicineDTO {
   medicineId: string;
   name: string;
-  // other medicine properties
 }
 
 export const AdminDashboard = () => {
@@ -46,20 +42,17 @@ export const AdminDashboard = () => {
         System overview and management
       </Typography>
 
-      {/* Flexbox container replacing Grid */}
-      <Box
-        sx={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 3,
-          mb: 4,
-          justifyContent: 'space-between',
-        }}
-      >
+      <Box sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 3,
+        mb: 4,
+        justifyContent: 'space-between',
+      }}>
         <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Total Doctors"
-            value={Array.isArray(doctors) ? doctors.length : 0}
+            value={doctors?.length || 0}
             icon={LocalHospitalIcon}
             color="primary"
           />
@@ -75,7 +68,7 @@ export const AdminDashboard = () => {
         <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Registered Patients"
-            value={Array.isArray(patients) ? patients.length : 0}
+            value={patients?.length || 0}
             icon={GroupIcon}
             color="success"
           />
@@ -83,21 +76,19 @@ export const AdminDashboard = () => {
         <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <StatsCard
             title="Medicines in Stock"
-            value={Array.isArray(medicines) ? medicines.length : 0}
+            value={medicines?.length || 0}
             icon={MedicationIcon}
             color="warning"
           />
         </Box>
       </Box>
 
-      <Box
-        sx={{
-          backgroundColor: 'background.paper',
-          p: 3,
-          borderRadius: 2,
-          boxShadow: 1,
-        }}
-      >
+      <Box sx={{
+        backgroundColor: 'background.paper',
+        p: 3,
+        borderRadius: 2,
+        boxShadow: 1,
+      }}>
         <Typography variant="h6" gutterBottom>
           Quick Actions
         </Typography>

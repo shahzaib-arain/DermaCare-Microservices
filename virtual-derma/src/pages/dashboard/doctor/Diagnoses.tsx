@@ -1,38 +1,42 @@
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
-import { useApi } from '../../../hooks/useApi';
-import { useEffect } from 'react';
-import { DiagnosisDTO } from '../../../types/diagnosisTypes';
-import { formatDate } from '../../../utils/dateUtils';
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from '@mui/material';
 import { useAuth } from '../../../contexts/AuthContext';
-import { Link as RouterLink } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { DiagnosisDTO } from '../../../types/diagnosisTypes';
+import { formatDateTime } from '../../../utils/dateUtils';
+import apiClient from '../../../api/apiClient';
 
 export const Diagnoses = () => {
   const { user } = useAuth();
-  const { data: diagnoses, fetchData: fetchDiagnoses, loading, error } = useApi<DiagnosisDTO[]>();
+  const [diagnoses, setDiagnoses] = useState<DiagnosisDTO[]>([]);
 
   useEffect(() => {
-    if (user?.token) {
-      fetchDiagnoses({
-        url: '/api/diagnosis',
-        method: 'get',
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      });
+    if (user?.id && user.token) {
+      apiClient
+        .get<DiagnosisDTO[]>(`/api/diagnosis/doctor/${user.id}`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        })
+        .then((res) => setDiagnoses(res.data))
+        .catch((err) => console.error('Failed to fetch diagnoses:', err));
     }
-  }, [fetchDiagnoses, user?.token]);
-
-  if (loading) return <Typography>Loading diagnoses...</Typography>;
-  if (error) return <Typography color="error">Failed to load diagnoses.</Typography>;
-  if (!diagnoses || diagnoses.length === 0) return <Typography>No diagnoses found.</Typography>;
+  }, [user]);
 
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Patient Diagnoses
+        My Diagnoses
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Review and analyze patient-submitted skin conditions
+        View all diagnoses you have recorded
       </Typography>
 
       <TableContainer component={Paper}>
@@ -40,38 +44,18 @@ export const Diagnoses = () => {
           <TableHead>
             <TableRow>
               <TableCell>Patient</TableCell>
-              <TableCell>Submitted</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell>Diagnosis</TableCell>
+              <TableCell>Notes</TableCell>
+              <TableCell>Date & Time</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {diagnoses.filter(d => d.status === 'PENDING').map((diagnosis) => (
+            {diagnoses.map((diagnosis) => (
               <TableRow key={diagnosis.id}>
                 <TableCell>{diagnosis.patientName}</TableCell>
-                <TableCell>{formatDate(diagnosis.createdAt)}</TableCell>
-                <TableCell>
-                  <Box sx={{
-                    display: 'inline-block',
-                    px: 1,
-                    py: 0.5,
-                    borderRadius: 1,
-                    backgroundColor: 'warning.light',
-                    color: 'common.white'
-                  }}>
-                    {diagnosis.status}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Button 
-                    variant="contained" 
-                    size="small"
-                    component={RouterLink}
-                    to={`/doctor/diagnosis/${diagnosis.id}`}
-                  >
-                    Analyze
-                  </Button>
-                </TableCell>
+                <TableCell>{diagnosis.diagnosis}</TableCell>
+                <TableCell>{diagnosis.notes}</TableCell>
+                <TableCell>{formatDateTime(diagnosis.diagnosedAt)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

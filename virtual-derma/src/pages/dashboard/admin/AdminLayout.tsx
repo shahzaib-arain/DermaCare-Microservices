@@ -1,7 +1,15 @@
-// Create a new file: src/layouts/admin/AdminLayout.tsx
-import { Outlet } from 'react-router-dom';
-import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { Outlet, Link } from 'react-router-dom';
+import {
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText
+} from '@mui/material';
 import { useAuth } from '../../../contexts/AuthContext';
+
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
@@ -30,45 +38,50 @@ export const AdminLayout = () => {
       >
         <List>
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/admin/dashboard">
+            <ListItemButton component={Link} to="/admin/dashboard">
               <ListItemIcon>
                 <DashboardIcon />
               </ListItemIcon>
               <ListItemText primary="Dashboard" />
             </ListItemButton>
           </ListItem>
+
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/admin/doctor-verification">
+            <ListItemButton component={Link} to="/admin/doctor-verification">
               <ListItemIcon>
                 <VerifiedUserIcon />
               </ListItemIcon>
               <ListItemText primary="Doctor Verification" />
             </ListItemButton>
           </ListItem>
+
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/admin/manage-doctors">
+            <ListItemButton component={Link} to="/admin/manage-doctors">
               <ListItemIcon>
                 <LocalHospitalIcon />
               </ListItemIcon>
               <ListItemText primary="Manage Doctors" />
             </ListItemButton>
           </ListItem>
+
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/admin/manage-patients">
+            <ListItemButton component={Link} to="/admin/manage-patients">
               <ListItemIcon>
                 <GroupIcon />
               </ListItemIcon>
               <ListItemText primary="Manage Patients" />
             </ListItemButton>
           </ListItem>
+
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/admin/manage-medicines">
+            <ListItemButton component={Link} to="/admin/manage-medicines">
               <ListItemIcon>
                 <MedicationIcon />
               </ListItemIcon>
               <ListItemText primary="Manage Medicines" />
             </ListItemButton>
           </ListItem>
+
           <ListItem disablePadding>
             <ListItemButton onClick={logout}>
               <ListItemIcon>
@@ -79,6 +92,7 @@ export const AdminLayout = () => {
           </ListItem>
         </List>
       </Drawer>
+
       <Box
         component="main"
         sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}

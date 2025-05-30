@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import {
   Box,
   Drawer,
@@ -37,7 +37,7 @@ export const PatientLayout = () => {
       >
         <List>
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/patient/dashboard">
+            <ListItemButton component={Link} to="/patient/dashboard">
               <ListItemIcon>
                 <DashboardIcon />
               </ListItemIcon>
@@ -46,7 +46,7 @@ export const PatientLayout = () => {
           </ListItem>
 
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/patient/appointments">
+            <ListItemButton component={Link} to="/patient/appointments">
               <ListItemIcon>
                 <EventIcon />
               </ListItemIcon>
@@ -55,7 +55,7 @@ export const PatientLayout = () => {
           </ListItem>
 
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/patient/book-appointment">
+            <ListItemButton component={Link} to="/patient/book-appointment">
               <ListItemIcon>
                 <HealingIcon />
               </ListItemIcon>
@@ -64,7 +64,7 @@ export const PatientLayout = () => {
           </ListItem>
 
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/patient/prescriptions">
+            <ListItemButton component={Link} to="/patient/prescriptions">
               <ListItemIcon>
                 <MedicationIcon />
               </ListItemIcon>
@@ -73,7 +73,7 @@ export const PatientLayout = () => {
           </ListItem>
 
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/patient/upload-diagnosis">
+            <ListItemButton component={Link} to="/patient/upload-diagnosis">
               <ListItemIcon>
                 <UploadIcon />
               </ListItemIcon>

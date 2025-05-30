@@ -7,9 +7,10 @@ import {
   useCallback,
 } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { login as apiLogin, validateToken } from '../api/authService';
+import { login as apiLogin } from '../api/authService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LoadingScreen } from '../components/ui/LoadingScreen';
+import apiClient from 'api/apiClient';
 
 interface DecodedToken {
   sub: string;
@@ -56,10 +57,55 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return role.replace('ROLE_', '').toUpperCase();
   }, []);
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    setUser(null);
+    navigate('/login');
+  };
+
+  const refreshToken = async () => {
+    try {
+      const response = await apiClient.post('/security-service/auth/refresh');
+      const newToken = response.data.token;
+      localStorage.setItem('token', newToken);
+      return newToken;
+    } catch (error) {
+      logout();
+      throw error;
+    }
+  };
+
+  // Set up Axios interceptor
+  useEffect(() => {
+    const interceptor = apiClient.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          try {
+            const newToken = await refreshToken();
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return apiClient(originalRequest);
+          } catch (refreshError) {
+            logout();
+            return Promise.reject(refreshError);
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      apiClient.interceptors.response.eject(interceptor);
+    };
+  }, [logout]);
+
   const checkAuth = useCallback(async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
-    
+
     if (!token) {
       setIsAuthenticated(false);
       setUser(null);
@@ -70,15 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const decoded = jwtDecode<DecodedToken>(token);
       
-      if (decoded.exp * 1000 < Date.now()) {
-        throw new Error('Token expired');
-      }
-
-      const isValid = await validateToken(token);
-      if (!isValid) {
-        throw new Error('Invalid token');
-      }
-
+      // Skip explicit token validation with backend - rely on the interceptor
       const role = normalizeRole(decoded.roles);
       const currentUser: AuthUser = {
         token,
@@ -124,10 +162,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsAuthenticated(true);
       setUser(loggedInUser);
 
-      // Redirect to intended page or default route
       const from = location.state?.from?.pathname || getDefaultRoute(role);
       navigate(from, { replace: true });
-
     } catch (error) {
       console.error('[AuthContext] Login failed:', error);
       localStorage.removeItem('token');
@@ -140,19 +176,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getDefaultRoute = (role: string): string => {
-    switch(role) {
-      case 'PATIENT': return '/patient/dashboard';
-      case 'DOCTOR': return '/doctor/dashboard';
-      case 'ADMIN': return '/admin/dashboard';
-      default: return '/';
+    switch (role) {
+      case 'PATIENT':
+        return '/patient/dashboard';
+      case 'DOCTOR':
+        return '/doctor/dashboard';
+      case 'ADMIN':
+        return '/admin/dashboard';
+      default:
+        return '/';
     }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    setUser(null);
-    navigate('/login');
   };
 
   useEffect(() => {
@@ -163,13 +196,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ 
-        isAuthenticated, 
-        user, 
-        loading, 
-        login, 
-        logout, 
-        checkAuth 
+      value={{
+        isAuthenticated,
+        user,
+        loading,
+        login,
+        logout,
+        checkAuth
       }}
     >
       {children}

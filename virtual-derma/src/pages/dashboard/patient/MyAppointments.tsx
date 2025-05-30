@@ -10,26 +10,28 @@ import {
   Paper,
   IconButton
 } from '@mui/material';
-import { useApi } from '../../../hooks/useApi';
 import { useAuth } from '../../../contexts/AuthContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AppointmentDTO } from '../../../types/appointmentTypes';
 import { formatDateTime } from '../../../utils/dateUtils';
 import EditIcon from '@mui/icons-material/Edit';
 import CancelIcon from '@mui/icons-material/Cancel';
+import apiClient from '../../../api/apiClient';
 
 export const MyAppointments = () => {
   const { user } = useAuth();
-  const { data: appointments, fetchData: fetchAppointments } = useApi<AppointmentDTO[]>();
+  const [appointments, setAppointments] = useState<AppointmentDTO[]>([]);
 
   useEffect(() => {
-    if (user?.email) {
-      fetchAppointments({
-        url: `/api/appointment/patient/${user.email}`,
-        method: 'get'
-      });
+    if (user?.email && user.token) {
+      apiClient
+        .get<AppointmentDTO[]>(`/api/appointment/patient/${user.email}`, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        })
+        .then((response) => setAppointments(response.data))
+        .catch((error) => console.error('Failed to fetch appointments:', error));
     }
-  }, [user, fetchAppointments]);
+  }, [user]);
 
   return (
     <Box>
@@ -51,7 +53,7 @@ export const MyAppointments = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {appointments?.map((appointment) => (
+            {appointments.map((appointment) => (
               <TableRow key={appointment.id}>
                 <TableCell>{appointment.doctorName}</TableCell>
                 <TableCell>{formatDateTime(appointment.appointmentTime)}</TableCell>

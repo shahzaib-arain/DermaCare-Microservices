@@ -1,31 +1,27 @@
 import { Box, Typography, Paper, CircularProgress } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { getPatientProfile } from '../../../api/userService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { UserResponseDTO } from '../../../types/userTypes';
+import apiClient from '../../../api/apiClient';
 
 export const PatientProfile = () => {
-const { user } = useAuth();
-const token = user?.token;
+  const { user } = useAuth();
   const [profile, setProfile] = useState<UserResponseDTO | null>(null);
-  console.log("React_");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        if (token) {
-          const data = await getPatientProfile(token);
-          setProfile(data);
-        }
+        const { data } = await apiClient.get<UserResponseDTO>('/user/profile');
+        setProfile(data);
       } catch (err) {
         console.error('Error fetching patient profile:', err);
       } finally {
         setLoading(false);
       }
     };
-    fetchProfile();
-  }, [token]);
+    if (user?.token) fetchProfile();
+  }, [user]);
 
   if (loading) return <CircularProgress />;
 
@@ -35,7 +31,6 @@ const token = user?.token;
       <Typography variant="body1"><strong>Name:</strong> {profile?.fullName}</Typography>
       <Typography variant="body1"><strong>Email:</strong> {profile?.email}</Typography>
       <Typography variant="body1"><strong>Phone:</strong> {profile?.phone}</Typography>
-      {/* Add more fields as needed */}
     </Box>
   );
 };

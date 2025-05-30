@@ -1,7 +1,7 @@
-import axios from 'axios';
+// src/api/userService.ts
+import apiClient from './apiClient';
+import { AxiosError } from 'axios'; // Import AxiosError for proper typing
 import { DoctorVerificationDTO, UserResponseDTO } from 'types/userTypes';
-
-const API_BASE_URL = 'http://localhost:9092/user-service/api';
 
 interface LoginCredentials {
   username: string;
@@ -19,8 +19,8 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
   formData.append('password', password);
 
   try {
-    const response = await axios.post(
-      `http://localhost:9092/security-service/auth/login`,
+    const response = await apiClient.post(
+      '/security-service/auth/login',
       formData.toString(),
       {
         headers: {
@@ -34,7 +34,8 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
     if (!token) throw new Error('Token not received from server');
     return { token };
   } catch (error) {
-    if (axios.isAxiosError(error)) {
+    // Proper type checking for AxiosError
+    if (error instanceof AxiosError) {
       console.error('Detailed login error:', {
         status: error.response?.status,
         data: error.response?.data,
@@ -46,50 +47,91 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
       }
       throw new Error(error.response?.data?.message || 'Login failed');
     }
-    throw new Error('Network error');
+    // Handle non-Axios errors
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Unknown error occurred during login');
   }
 };
 
-const getAuthConfig = (token: string) => ({
-  headers: { Authorization: `Bearer ${token}` },
-});
-
-export const getPatientProfile = async (token: string): Promise<UserResponseDTO> => {
-  const response = await axios.get(`${API_BASE_URL}/patient/profile`, getAuthConfig(token));
-  return response.data;
+export const getPatientProfile = async (): Promise<UserResponseDTO> => {
+  try {
+    const response = await apiClient.get('/user-service/api/patient/profile');
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch patient profile');
+    }
+    throw new Error('Failed to fetch patient profile');
+  }
 };
 
-export const getDoctorProfile = async (token: string): Promise<UserResponseDTO> => {
-  const response = await axios.get(`${API_BASE_URL}/doctor/profile`, getAuthConfig(token));
-  return response.data;
+export const getDoctorProfile = async (): Promise<UserResponseDTO> => {
+  try {
+    const response = await apiClient.get('/user-service/api/doctor/profile');
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch doctor profile');
+    }
+    throw new Error('Failed to fetch doctor profile');
+  }
 };
 
-export const getPendingDoctors = async (token: string): Promise<DoctorVerificationDTO[]> => {
-  const response = await axios.get(`${API_BASE_URL}/admin/doctors/pending`, getAuthConfig(token));
-  return response.data;
+// Similar error handling for other functions
+export const getPendingDoctors = async (): Promise<DoctorVerificationDTO[]> => {
+  try {
+    const response = await apiClient.get('/user-service/api/admin/doctors/pending');
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch pending doctors');
+    }
+    throw new Error('Failed to fetch pending doctors');
+  }
 };
 
-export const getVerifiedDoctors = async (token: string): Promise<DoctorVerificationDTO[]> => {
-  const response = await axios.get(`${API_BASE_URL}/admin/doctors/verified`, getAuthConfig(token));
-  return response.data;
+export const getVerifiedDoctors = async (): Promise<DoctorVerificationDTO[]> => {
+  try {
+    const response = await apiClient.get('/user-service/api/admin/doctors/verified');
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch verified doctors');
+    }
+    throw new Error('Failed to fetch verified doctors');
+  }
 };
 
 export const verifyDoctor = async (
-  token: string,
   doctorId: string,
   degreeFilePath?: string
 ): Promise<void> => {
-  await axios.put(
-    `${API_BASE_URL}/admin/doctors/verify/${doctorId}`,
-    {},
-    {
-      ...getAuthConfig(token),
-      params: { degreeFilePath },
+  try {
+    await apiClient.put(
+      `/user-service/api/admin/doctors/verify/${doctorId}`,
+      {},
+      {
+        params: { degreeFilePath },
+      }
+    );
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(error.response?.data?.message || 'Failed to verify doctor');
     }
-  );
+    throw new Error('Failed to verify doctor');
+  }
 };
 
-export const getAllDoctors = async (token: string): Promise<DoctorVerificationDTO[]> => {
-  const response = await axios.get(`${API_BASE_URL}/patient/doctors`, getAuthConfig(token));
-  return response.data;
+export const getAllDoctors = async (): Promise<DoctorVerificationDTO[]> => {
+  try {
+    const response = await apiClient.get('/user-service/api/patient/doctors');
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch doctors');
+    }
+    throw new Error('Failed to fetch doctors');
+  }
 };

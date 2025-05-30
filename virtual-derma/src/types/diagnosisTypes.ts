@@ -1,4 +1,5 @@
 export interface DiagnosisDTO {
+ diagnosedAt: string | Date;
   id: string;
   patientId: string;
   doctorId?: string;

@@ -1,47 +1,44 @@
 import { useAuth } from '../../contexts/AuthContext';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { LoadingScreen } from '../../components/ui/LoadingScreen';
-import { ReactNode, useEffect } from 'react';
+import { useEffect } from 'react';
+import { Role } from 'types/userTypes';
 
 interface ProtectedRouteProps {
-  children: ReactNode;
-  requiredRole?: 'PATIENT' | 'DOCTOR' | 'ADMIN'; // More specific type
+  requiredRole?: Role;
+  children?: React.ReactNode;
 }
 
-export const ProtectedRoute = ({ 
-  children, 
-  requiredRole
+export const ProtectedRoute = ({
+  children,
+  requiredRole,
 }: ProtectedRouteProps) => {
-  const { isAuthenticated, user, loading, checkAuth } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
-
-  useEffect(() => {
-    // Only check auth if we're not already loading and not authenticated
-    if (!loading && !isAuthenticated) {
-      checkAuth().catch(error => {
-        console.error('Auth check failed:', error);
-      });
-    }
-  }, [isAuthenticated, loading, checkAuth]);
 
   if (loading) {
     return <LoadingScreen />;
   }
 
   if (!isAuthenticated) {
-    // Store the attempted URL for redirect after login
-    return <Navigate 
-      to="/login" 
-      state={{ from: location }} 
-      replace 
-    />;
+    return (
+      <Navigate
+        to="/login"
+        state={{
+          from: location,
+          message: 'Please login to access this page',
+        }}
+        replace
+      />
+    );
   }
 
-  // Check role if required
   if (requiredRole && user?.role !== requiredRole) {
-    console.warn(`Unauthorized access attempt: User role ${user?.role} tried to access ${requiredRole} route`);
+    console.warn(
+      `Unauthorized access attempt: User ${user?.email} with role ${user?.role} tried to access ${requiredRole} protected route`
+    );
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return <>{children}</>;
+  return children ? <>{children}</> : <Outlet />;
 };
