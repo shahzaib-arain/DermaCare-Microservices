@@ -18,11 +18,14 @@ export const registerDoctorSchema = registerPatientSchema.concat(
     specialization: yup.string().required('Specialization is required'),
   })
 );
-
-export const appointmentSchema = yup.object().shape({
+export const appointmentSchema = yup.object({
   doctorId: yup.string().required('Doctor is required'),
-  appointmentTime: yup.string().required('Appointment time is required'),
   reason: yup.string().required('Reason is required'),
+  appointmentTime: yup
+    .date()
+    .typeError('Appointment time must be a valid date')
+    .min(new Date(), 'Appointment time must be in the future')
+    .required('Appointment time is required')
 });
 
 export const diagnosisSchema = yup.object().shape({

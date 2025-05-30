@@ -1,76 +1,57 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 import { AppointmentDTO } from '../types/appointmentTypes';
 
-const API_BASE_URL = 'http://localhost:9092/dermacare-service/api/appointment'; // Updated backend URL
+const API_BASE_URL = '/dermacare-service/api/appointment';
 
-const getAuthConfig = (token: string) => ({
-  headers: { Authorization: `Bearer ${token}` },
-});
+// Removed getAuthConfig and all token parameters
 
 export const bookAppointment = async (
-  appointmentData: Omit<AppointmentDTO, 'id' | 'status' | 'createdAt'>,
-  token: string
+  appointmentData: Omit<AppointmentDTO, 'id' | 'status' | 'createdAt'>
 ): Promise<AppointmentDTO> => {
-    console.log('Booking appointment...', appointmentData, token); // 👈 Add this
-  const response = await axios.post(API_BASE_URL, appointmentData, getAuthConfig(token));
+  const response = await apiClient.post(API_BASE_URL, appointmentData);
   return response.data;
 };
 
 export const getPatientAppointments = async (
-  patientEmail: string,
-  token: string
+  patientEmail: string
 ): Promise<AppointmentDTO[]> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/patient/${patientEmail}`,
-    getAuthConfig(token)
-  );
+  const response = await apiClient.get(`${API_BASE_URL}/patient/${patientEmail}`);
   return response.data;
 };
 
-
 export const getDoctorAppointments = async (
-  doctorId: string,
-  token: string
+  doctorId: string
 ): Promise<AppointmentDTO[]> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/doctor/${doctorId}`,
-    getAuthConfig(token)
-  );
+  const response = await apiClient.get(`${API_BASE_URL}/doctor/${doctorId}`);
   return response.data;
 };
 
 export const rescheduleAppointment = async (
   id: string,
-  newDateTime: string,
-  token: string
+  newDateTime: string
 ): Promise<AppointmentDTO> => {
-  const response = await axios.put(
+  const response = await apiClient.put(
     `${API_BASE_URL}/${id}/reschedule`,
     {},
     {
-      ...getAuthConfig(token),
       params: { newDateTime },
     }
   );
   return response.data;
 };
 
-export const cancelAppointment = async (id: string, token: string): Promise<void> => {
-  await axios.delete(`${API_BASE_URL}/${id}`, getAuthConfig(token));
+export const cancelAppointment = async (
+  id: string
+): Promise<void> => {
+  await apiClient.delete(`${API_BASE_URL}/${id}`);
 };
 
 export const getAvailableSlots = async (
   doctorId: string,
-  date: string,
-  token?: string
+  date: string
 ): Promise<AppointmentDTO[]> => {
-  const config = token ? getAuthConfig(token) : {};
-  const response = await axios.get(
-    `${API_BASE_URL}/available/${doctorId}`,
-    {
-      ...config,
-      params: { date },
-    }
-  );
+  const response = await apiClient.get(`${API_BASE_URL}/available/${doctorId}`, {
+    params: { date },
+  });
   return response.data;
 };

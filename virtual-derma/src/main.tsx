@@ -14,17 +14,17 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <AuthProvider>
+    <AuthProvider>
+      <BrowserRouter>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
             <div className="fade-in slide-up">
               <App />
             </div>
-          </AuthProvider>
-        </ThemeProvider>
-      </StyledEngineProvider>
-    </BrowserRouter>
+          </ThemeProvider>
+        </StyledEngineProvider>
+      </BrowserRouter>
+    </AuthProvider>
   </React.StrictMode>
 );
