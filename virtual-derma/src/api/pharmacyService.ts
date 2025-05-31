@@ -1,78 +1,34 @@
-// src/api/pharmacyService.ts
-import axios from 'axios';
-import {
-  PrescriptionDTO,
-  MedicineDTO,
-  PrescriptionItemDTO,
-} from '../types/pharmacyTypes';
 
-const API_BASE_URL = 'http://localhost:9092/dermacare-service/api/pharmacy';
-const getAuthConfig = (token: string) => ({
-  headers: { Authorization: `Bearer ${token}` },
-});
+import apiClient from './apiClient';
+import { PrescriptionDTO, MedicineDTO, PrescriptionItemDTO } from '../types/pharmacyTypes';
+
+const API_BASE_URL = '/dermacare-service/api/pharmacy';
 
 export const createPrescription = async (
-  prescriptionData: Omit<PrescriptionDTO, 'id' | 'dateCreated'>,
-  token: string
+  prescriptionData: Omit<PrescriptionDTO, 'id' | 'dateCreated'>
 ): Promise<PrescriptionDTO> => {
-  const response = await axios.post(
-    `${API_BASE_URL}/prescription`,
-    prescriptionData,
-    getAuthConfig(token)
-  );
+  const response = await apiClient.post(`${API_BASE_URL}/prescription`, prescriptionData);
   return response.data;
 };
 
-export const getPrescription = async (
-  id: string,
-  token: string
-): Promise<PrescriptionDTO> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/prescription/${id}`,
-    getAuthConfig(token)
-  );
+export const getPrescription = async (id: string): Promise<PrescriptionDTO> => {
+  const response = await apiClient.get(`${API_BASE_URL}/prescription/${id}`);
   return response.data;
 };
 
-export const getPatientPrescriptions = async (
-  patientId: string,
-  token: string
-): Promise<PrescriptionDTO[]> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/prescription/patient/${patientId}`,
-    getAuthConfig(token)
-  );
+export const getPatientPrescriptions = async (email: string): Promise<PrescriptionDTO[]> => {
+  const response = await apiClient.get(`${API_BASE_URL}/prescription/patient/${email}`);
   return response.data;
 };
 
-export const orderMedicines = async (
-  prescriptionId: string,
-  token: string
-): Promise<string> => {
-  const response = await axios.post(
-    `${API_BASE_URL}/order/${prescriptionId}`,
-    {},
-    getAuthConfig(token)
-  );
-  return response.data;
-};
-
-export const getAllMedicines = async (
-  token?: string
-): Promise<MedicineDTO[]> => {
-  const config = token ? getAuthConfig(token) : {};
-  const response = await axios.get(`${API_BASE_URL}/medicines`, config);
+export const getAllMedicines = async (): Promise<MedicineDTO[]> => {
+  const response = await apiClient.get(`${API_BASE_URL}/medicines`);
   return response.data;
 };
 
 export const addMedicine = async (
-  medicineData: MedicineDTO,
-  token: string
+  medicineData: Omit<MedicineDTO, 'id'>
 ): Promise<MedicineDTO> => {
-  const response = await axios.post(
-    `${API_BASE_URL}/medicines`,
-    medicineData,
-    getAuthConfig(token)
-  );
+  const response = await apiClient.post(`${API_BASE_URL}/medicines`, medicineData);
   return response.data;
 };

@@ -19,7 +19,6 @@ import { UploadDiagnosis } from './pages/dashboard/patient/UploadDiagnosis';
 import { MyAppointments } from './pages/dashboard/patient/MyAppointments';
 import { MyPrescriptions } from './pages/dashboard/patient/MyPrescriptions';
 import { PatientProfile } from './pages/dashboard/patient/PatientProfile';
-import { PatientDiagnosesPage } from './pages/dashboard/patient/PatientDiagnosesPage';
 
 // Doctor components
 import { DoctorLayout } from './pages/dashboard/doctor/DoctorLayout';
@@ -71,23 +70,24 @@ export const AppRoutes = () => {
         <Route path="upload-diagnosis" element={<UploadDiagnosis />} />
         <Route path="profile" element={<PatientProfile />} />
       </Route>
-UploadDiagnosis
-      {/* Doctor Routes */}
-      <Route 
-        path="/doctor" 
-        element={
-          <ProtectedRoute requiredRole={Role.DOCTOR}>
-            <DoctorLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<DoctorDashboard />} />
-        <Route path="appointments" element={<Appointments />} />
-        <Route path="diagnoses" element={<Diagnoses />} />
-        <Route path="create-prescription" element={<CreatePrescription />} />
-        <Route path="profile" element={<DoctorProfile />} />
-      </Route>
+
+   {/* Doctor Routes */}
+<Route 
+  path="/doctor" 
+  element={
+    <ProtectedRoute requiredRole={Role.DOCTOR}>
+      <DoctorLayout />
+    </ProtectedRoute>
+  }
+>
+  <Route index element={<Navigate to="dashboard" replace />} />
+  <Route path="dashboard" element={<DoctorDashboard />} />
+  <Route path="appointments" element={<Appointments />} />
+  <Route path="diagnoses" element={<Diagnoses />} />
+  <Route path="create-prescription" element={<CreatePrescription />} />
+  <Route path="patient" element={<DoctorProfile />} />
+  <Route path="profile" element={<DoctorProfile />} />
+</Route>
 
       {/* Admin Routes */}
       <Route 

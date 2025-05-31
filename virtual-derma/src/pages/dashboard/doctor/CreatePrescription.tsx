@@ -3,204 +3,256 @@ import {
   Typography,
   TextField,
   Button,
-  Autocomplete,
+  MenuItem,
+  CircularProgress,
   IconButton,
 } from '@mui/material';
+import {
+  useForm,
+  SubmitHandler,
+  Controller,
+  useFieldArray,
+} from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { PrescriptionFormData, prescriptionSchema } from '../../../utils/validationSchemas';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { MedicineDTO } from '../../../types/pharmacyTypes';
-import { createPrescription } from '../../../api/pharmacyService';
-import apiClient from '../../../api/apiClient';
+import {
+  createPrescription,
+  getAllMedicines,
+} from '../../../api/pharmacyService';
+import {
+  MedicineDTO,
+  PrescriptionStatus,
+} from '../../../types/pharmacyTypes';
 
-interface PrescriptionItem {
-  medicineId: string;
-  dosage: string;
-  duration: string;
-  instructions: string;
-  quantity: number;
-}
+type FormData = {
+  patientId: string;
+  items: Array<{
+    medicineId: string;
+    dosage: string;
+    duration: string;
+    instructions: string;
+  }>;
+};
 
 export const CreatePrescription = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [medicines, setMedicines] = useState<MedicineDTO[]>([]);
-  const [items, setItems] = useState<PrescriptionItem[]>([
-    { medicineId: '', dosage: '', duration: '', instructions: '', quantity: 1 },
-  ]);
-  const [patientId, setPatientId] = useState('patient-id-here'); // You can modify this to come from props or route params
+  const [loadingMedicines, setLoadingMedicines] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  // Fetch medicines list
+  const {
+  control,
+  handleSubmit,
+  formState: { errors, isSubmitting },
+} = useForm<PrescriptionFormData>({
+  resolver: yupResolver(prescriptionSchema),
+  defaultValues: {
+    patientId: '',
+    items: [
+      {
+        medicineId: '',
+        dosage: '',
+        duration: '',
+        instructions: '',
+      },
+    ],
+  },
+});
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'items',
+  });
+
   useEffect(() => {
-    if (user?.token) {
-      apiClient
-        .get<MedicineDTO[]>('/api/pharmacy/medicines', {
-          headers: { Authorization: `Bearer ${user.token}` },
-        })
-        .then((res) => setMedicines(res.data))
-        .catch((err) => console.error('Failed to fetch medicines:', err));
+    const fetchMedicines = async () => {
+      try {
+        setLoadingMedicines(true);
+        const data = await getAllMedicines();
+        setMedicines(data);
+      } catch (error) {
+        console.error('Failed to fetch medicines:', error);
+        setError('Failed to load medicines list. Please try again later.');
+      } finally {
+        setLoadingMedicines(false);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchMedicines();
     }
-  }, [user]);
+  }, [isAuthenticated]);
 
-  const addItem = () => {
-    setItems((prev) => [
-      ...prev,
-      { medicineId: '', dosage: '', duration: '', instructions: '', quantity: 1 },
-    ]);
-  };
-
-  const removeItem = (index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const updateItem = (
-    index: number,
-    field: keyof PrescriptionItem,
-    value: string | number
-  ) => {
-    setItems((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
-    );
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user?.id) return;
-
+const onSubmit: SubmitHandler<PrescriptionFormData> = async (data) => {
     try {
-      await createPrescription(
-        {
-          patientId,
-          doctorId: user.id,
-          doctorName: `${user.firstName} ${user.lastName}`,
-          items: items.map((item) => ({
-            medicineId: item.medicineId,
-            dosage: item.dosage,
-            duration: item.duration,
-            instructions: item.instructions,
-            quantity: item.quantity,
-          })),
-          status: 'ACTIVE',
-        },
-        user.id
-      );
-      navigate('/doctor/prescriptions');
+      setError(null);
+
+      if (!isAuthenticated || !user) {
+        throw new Error('Please login to create a prescription');
+      }
+
+      const prescriptionRequest = {
+        patientId: data.patientId,
+        doctorId: user.id,
+        doctorName: `${user.firstName} ${user.lastName}`,
+        status: 'ACTIVE' as PrescriptionStatus,
+        items: data.items,
+      };
+
+      await createPrescription(prescriptionRequest);
+      navigate('/doctor/create-prescription', { state: { success: true } });
     } catch (error) {
-      console.error('Failed to create prescription:', error);
+      console.error('Prescription creation failed:', error);
+      setError('Failed to create prescription. Please try again.');
     }
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
+    <Box
+      component="form"
+      noValidate
+      onSubmit={handleSubmit(onSubmit)}
+      sx={{
+        maxWidth: 1200,
+        '& .MuiTextField-root': { mb: 2 },
+      }}
+    >
+      <Typography variant="h5" gutterBottom>
         Create Prescription
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Prescribe medications for your patient
-      </Typography>
 
-      <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
-        <TextField
-          label="Patient ID"
-          fullWidth
-          value={patientId}
-          disabled
-          sx={{ mb: 3 }}
-        />
+      {error && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
+      )}
 
-        {items.map((item, index) => (
-          <Box
-            key={index}
-            sx={{
-              p: 3,
-              mb: 3,
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 1,
-            }}
-          >
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
-              <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
-                <Autocomplete
-                  options={medicines}
-                  getOptionLabel={(option) => option.name}
-                  value={medicines.find((m) => m.id === item.medicineId) || null}
-                  onChange={(_, value) =>
-                    updateItem(index, 'medicineId', value?.id || '')
-                  }
-                  renderInput={(params) => (
-                    <TextField {...params} label="Medicine" required />
-                  )}
-                />
-              </Box>
+      <Controller
+        name="patientId"
+        control={control}
+        render={({ field }) => (
+          <TextField
+            {...field}
+            label="Patient ID"
+            fullWidth
+            error={!!errors.patientId}
+            helperText={errors.patientId?.message}
+          />
+        )}
+      />
 
+      {fields.map((field, index) => (
+        <Box key={field.id} display="flex" gap={2} alignItems="center">
+          <Controller
+            name={`items.${index}.medicineId`}
+            control={control}
+            render={({ field }) => (
               <TextField
+                {...field}
+                select
+                label="Medicine"
+                fullWidth
+                error={!!errors.items?.[index]?.medicineId}
+                helperText={errors.items?.[index]?.medicineId?.message}
+              >
+                {loadingMedicines ? (
+                  <MenuItem disabled>
+                    <CircularProgress size={20} />
+                  </MenuItem>
+                ) : (
+                  medicines.map((medicine) => (
+                    <MenuItem key={medicine.id} value={medicine.id}>
+                      {medicine.name}
+                    </MenuItem>
+                  ))
+                )}
+              </TextField>
+            )}
+          />
+
+          <Controller
+            name={`items.${index}.dosage`}
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
                 label="Dosage"
-                value={item.dosage}
-                onChange={(e) => updateItem(index, 'dosage', e.target.value)}
-                required
-                sx={{ flex: '1 1 200px', minWidth: '200px' }}
+                fullWidth
+                error={!!errors.items?.[index]?.dosage}
+                helperText={errors.items?.[index]?.dosage?.message}
               />
+            )}
+          />
 
+          <Controller
+            name={`items.${index}.duration`}
+            control={control}
+            render={({ field }) => (
               <TextField
+                {...field}
                 label="Duration"
-                value={item.duration}
-                onChange={(e) => updateItem(index, 'duration', e.target.value)}
-                required
-                sx={{ flex: '1 1 200px', minWidth: '200px' }}
+                fullWidth
+                error={!!errors.items?.[index]?.duration}
+                helperText={errors.items?.[index]?.duration?.message}
               />
+            )}
+          />
 
+          <Controller
+            name={`items.${index}.instructions`}
+            control={control}
+            render={({ field }) => (
               <TextField
-                label="Quantity"
-                type="number"
-                value={item.quantity}
-                onChange={(e) =>
-                  updateItem(index, 'quantity', Math.max(1, Number(e.target.value)))
-                }
-                inputProps={{ min: 1 }}
-                required
-                sx={{ flex: '1 1 150px', minWidth: '150px' }}
-              />
-
-              <TextField
+                {...field}
                 label="Instructions"
-                value={item.instructions}
-                onChange={(e) => updateItem(index, 'instructions', e.target.value)}
-                required
-                multiline
-                rows={2}
-                sx={{ flex: '1 1 300px', minWidth: '300px' }}
+                fullWidth
+                error={!!errors.items?.[index]?.instructions}
+                helperText={errors.items?.[index]?.instructions?.message}
               />
+            )}
+          />
 
-              {items.length > 1 && (
-                <IconButton
-                  color="error"
-                  onClick={() => removeItem(index)}
-                  aria-label="Remove item"
-                >
-                  <RemoveCircleOutlineIcon />
-                </IconButton>
-              )}
-            </Box>
-          </Box>
-        ))}
-
-        <Button
-          variant="outlined"
-          startIcon={<AddIcon />}
-          onClick={addItem}
-          sx={{ mb: 3 }}
-        >
-          Add Medicine
-        </Button>
-
-        <Box>
-          <Button type="submit" variant="contained" size="large">
-            Submit Prescription
-          </Button>
+          <IconButton
+            onClick={() => remove(index)}
+            disabled={fields.length === 1 || isSubmitting}
+            color="error"
+          >
+            <RemoveCircleOutlineIcon />
+          </IconButton>
         </Box>
+      ))}
+
+      <Button
+        type="button"
+        variant="outlined"
+        startIcon={<AddIcon />}
+        onClick={() =>
+          append({
+            medicineId: '',
+            dosage: '',
+            duration: '',
+            instructions: '',
+          })
+        }
+        disabled={isSubmitting}
+        sx={{ mb: 3 }}
+      >
+        Add Medicine
+      </Button>
+
+      <Box>
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Creating...' : 'Create Prescription'}
+        </Button>
       </Box>
     </Box>
   );

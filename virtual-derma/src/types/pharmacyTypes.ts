@@ -1,33 +1,36 @@
-// src/types/pharmacyTypes.ts
 export interface MedicineDTO {
-  type: string;
-  id: string;  // Changed from medicineId to id for consistency
+  id: string;
   name: string;
-  dosage: string;
-  manufacturer?: string;
-  price?: number;
-  description?: string;
-  stock?: number;
-  category?: string;
+  description: string;
+  manufacturer: string;
+  price: number;
+  stock: number;
+  category: string;
+  dosageForm: string;
+  type?: string; // Changed from ReactNode to string if that's what you need
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PrescriptionItemDTO {
-  id?: string;
   medicineId: string;
   medicineName?: string;
   dosage: string;
-  quantity: number;
-  instructions?: string;
-  duration?: string;  // Added duration to match form
+  duration: string;
+  instructions: string;
+  quantity?: number;
 }
+
+export type PrescriptionStatus = 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
 
 export interface PrescriptionDTO {
   id: string;
   patientId: string;
   doctorId: string;
   doctorName: string;
+  patientName?: string;
+  status: PrescriptionStatus;
   dateCreated: string;
-  status: 'ACTIVE' | 'FULFILLED' | 'EXPIRED' | 'CANCELLED';
   items: PrescriptionItemDTO[];
   notes?: string;
 }

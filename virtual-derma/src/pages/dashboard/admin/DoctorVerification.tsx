@@ -10,37 +10,38 @@ import {
   Paper,
   Button,
   Avatar,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { DoctorVerificationDTO } from '../../../types/userTypes';
-import apiClient from '../../../api/apiClient';
+import {
+  getPendingDoctors,
+  getVerifiedDoctors,
+  verifyDoctor,
+} from '../../../api/userService';
 
 export const DoctorVerification = () => {
   const { user } = useAuth();
   const [pendingDoctors, setPendingDoctors] = useState<DoctorVerificationDTO[]>([]);
+  const [verifiedDoctors, setVerifiedDoctors] = useState<DoctorVerificationDTO[]>([]);
+  const [tab, setTab] = useState(0); // 0 = Pending, 1 = Verified
 
-  const fetchPendingDoctors = async () => {
+  const fetchDoctors = async () => {
     try {
-      const response = await apiClient.get<DoctorVerificationDTO[]>('/api/admin/doctors/pending', {
-        headers: { Authorization: `Bearer ${user?.token}` },
-      });
-      setPendingDoctors(response.data);
+      const [pending, verified] = await Promise.all([getPendingDoctors(), getVerifiedDoctors()]);
+      setPendingDoctors(pending);
+      setVerifiedDoctors(verified);
     } catch (error) {
-      console.error('Failed to fetch pending doctors:', error);
+      console.error('Error fetching doctors:', error);
     }
   };
 
   const handleVerify = async (doctorId: string) => {
     try {
-      await apiClient.post(
-        `/api/admin/doctors/verify`,
-        { doctorId, degreePath: '/path/to/degree.pdf' }, // Replace degreePath appropriately
-        {
-          headers: { Authorization: `Bearer ${user?.token}` },
-        }
-      );
-      fetchPendingDoctors();
+      await verifyDoctor(doctorId); // Add degree path if needed
+      fetchDoctors();
     } catch (error) {
       console.error('Verification failed:', error);
     }
@@ -48,18 +49,59 @@ export const DoctorVerification = () => {
 
   useEffect(() => {
     if (user?.token) {
-      fetchPendingDoctors();
+      fetchDoctors();
     }
   }, [user]);
+
+  const handleTabChange = (_: any, newValue: number) => {
+    setTab(newValue);
+  };
+
+  const renderDoctorRows = (doctors: DoctorVerificationDTO[], isPending: boolean) =>
+    doctors.map((doctor) => (
+      <TableRow key={doctor.doctorId}>
+        <TableCell>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar sx={{ mr: 2 }} />
+            <Box>
+              <Typography>{doctor.fullName}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                {doctor.email}
+              </Typography>
+            </Box>
+          </Box>
+        </TableCell>
+        <TableCell>{doctor.specialization}</TableCell>
+        <TableCell>{doctor.degreeNumber}</TableCell>
+        <TableCell>
+          {isPending ? (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => handleVerify(doctor.doctorId)}
+            >
+              Verify
+            </Button>
+          ) : (
+            <Typography color="success.main">Verified</Typography>
+          )}
+        </TableCell>
+      </TableRow>
+    ));
 
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
         Doctor Verification
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Review and verify new doctor registrations
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+        Review and verify doctor registrations
       </Typography>
+
+      <Tabs value={tab} onChange={handleTabChange} sx={{ mb: 2 }}>
+        <Tab label="Pending" />
+        <Tab label="Verified" />
+      </Tabs>
 
       <TableContainer component={Paper}>
         <Table>
@@ -72,28 +114,9 @@ export const DoctorVerification = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {pendingDoctors.map((doctor) => (
-              <TableRow key={doctor.doctorId}>
-                <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar sx={{ mr: 2 }} />
-                    <Box>
-                      <Typography>{doctor.fullName}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {doctor.email}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </TableCell>
-                <TableCell>{doctor.specialization}</TableCell>
-                <TableCell>{doctor.degreeNumber}</TableCell>
-                <TableCell>
-                  <Button variant="contained" size="small" onClick={() => handleVerify(doctor.doctorId)}>
-                    Verify
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {tab === 0
+              ? renderDoctorRows(pendingDoctors, true)
+              : renderDoctorRows(verifiedDoctors, false)}
           </TableBody>
         </Table>
       </TableContainer>

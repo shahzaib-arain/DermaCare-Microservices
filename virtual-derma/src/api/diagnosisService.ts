@@ -19,17 +19,23 @@ export const uploadImage = async (
   return response.data;
 };
 
-export const getDiagnosis = async (id: string): Promise<DiagnosisDTO> => {
-  const response = await apiClient.get(`${API_BASE_URL}/${id}`);
+export const getDiagnosesByDoctor = async (
+  doctorId: string,
+  token: string
+): Promise<DiagnosisDTO[]> => {
+  const response = await apiClient.get(
+    `${API_BASE_URL}/doctor/${doctorId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   return response.data;
 };
 
-export const getDiagnosesByPatient = async (
-  patientEmail: string
-): Promise<DiagnosisDTO[]> => {
-  const response = await apiClient.get(
-    `${API_BASE_URL}/patient/${encodeURIComponent(patientEmail)}`
-  );
+export const getDiagnosisById = async (id: string): Promise<DiagnosisDTO> => {
+  const response = await apiClient.get(`${API_BASE_URL}/${id}`);
   return response.data;
 };
 

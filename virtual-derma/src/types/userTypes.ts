@@ -19,7 +19,8 @@ export interface UserResponseDTO {
 }
 
 export interface DoctorVerificationDTO {
-  id: Key | null | undefined;
+ profilePicture?: string;
+   id: Key | null | undefined;
   doctorId: string;
   fullName: string;
   email: string;

@@ -20,11 +20,12 @@ export const getPatientAppointments = async (
 };
 
 export const getDoctorAppointments = async (
-  doctorId: string
+  doctorEmail: string
 ): Promise<AppointmentDTO[]> => {
-  const response = await apiClient.get(`${API_BASE_URL}/doctor/${doctorId}`);
+  const response = await apiClient.get(`${API_BASE_URL}/doctor/${doctorEmail}`);
   return response.data;
 };
+
 
 export const rescheduleAppointment = async (
   id: string,
@@ -53,5 +54,13 @@ export const getAvailableSlots = async (
   const response = await apiClient.get(`${API_BASE_URL}/available/${doctorId}`, {
     params: { date },
   });
+  return response.data;
+};
+
+export const updateAppointmentStatus = async (
+  id: string,
+  status: 'BOOKED' | 'COMPLETED' | 'CANCELLED'
+): Promise<AppointmentDTO> => {
+  const response = await apiClient.put(`${API_BASE_URL}/${id}/status`, { status });
   return response.data;
 };

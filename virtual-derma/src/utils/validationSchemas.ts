@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { InferType } from 'yup';
 
 export const loginSchema = yup.object().shape({
   email: yup.string().email('Invalid email').required('Email is required'),
@@ -35,3 +36,17 @@ export const diagnosisSchema = yup.object({
     .test('is-file', 'Please upload a file', (value) => value instanceof File),
   notes: yup.string().required('Notes are required')
 });
+
+export const prescriptionSchema = yup.object({
+  patientId: yup.string().required('Patient ID is required'),
+  items: yup.array().of(
+    yup.object({
+      medicineId: yup.string().required('Medicine is required'),
+      dosage: yup.string().required('Dosage is required'),
+      duration: yup.string().required('Duration is required'),
+      instructions: yup.string().required('Instructions are required'),
+    })
+  ).required('At least one medicine is required'),
+});
+
+export type PrescriptionFormData = InferType<typeof prescriptionSchema>;

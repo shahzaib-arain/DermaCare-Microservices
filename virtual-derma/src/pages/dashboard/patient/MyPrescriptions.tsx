@@ -17,13 +17,13 @@ export const MyPrescriptions = () => {
   const [expanded, setExpanded] = useState<string | false>(false);
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.email) {
       fetchPrescriptions({
-        url: `/pharmacy/prescription/patient/${user.id}`,
+        url: `/dermacare-service/api/pharmacy/prescription/patient/${user.email}`,
         method: 'get'
       });
 
-      apiClient.get<MedicineDTO[]>('/pharmacy/medicine')
+      apiClient.get<MedicineDTO[]>('/dermacare-service/api/pharmacy/medicines')
         .then(res => setMedicines(res.data))
         .catch(err => console.error('Failed to fetch medicines:', err));
     }
@@ -35,7 +35,7 @@ export const MyPrescriptions = () => {
 
   const handleOrderMedicines = async (prescriptionId: string) => {
     try {
-      await apiClient.post(`/pharmacy/prescription/order/${prescriptionId}`);
+      await apiClient.post(`/dermacare-service/api/pharmacy/order/${prescriptionId}`);
       alert('Medicines ordered successfully!');
     } catch (error) {
       console.error('Error ordering medicines:', error);

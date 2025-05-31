@@ -135,3 +135,7 @@ export const getAllDoctors = async (): Promise<DoctorVerificationDTO[]> => {
     throw new Error('Failed to fetch doctors');
   }
 };
+
+export const rejectDoctor = async (doctorId: string): Promise<void> => {
+  await apiClient.delete(`'/user-service/api/patient/doctors/reject/${doctorId}`);
+};

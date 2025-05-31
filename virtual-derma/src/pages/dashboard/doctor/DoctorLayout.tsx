@@ -53,7 +53,7 @@ export const DoctorLayout = () => {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component="a" href="/doctor/prescriptions">
+            <ListItemButton component="a" href="/doctor/create-prescription">
               <ListItemIcon>
                 <MedicationIcon />
               </ListItemIcon>

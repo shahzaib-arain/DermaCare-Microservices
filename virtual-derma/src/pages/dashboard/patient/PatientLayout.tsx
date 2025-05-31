@@ -80,6 +80,7 @@ export const PatientLayout = () => {
               <ListItemText primary="Upload Diagnosis" />
             </ListItemButton>
           </ListItem>
+          
 
           <ListItem disablePadding>
             <ListItemButton onClick={logout}>
